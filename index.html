@@ -1239,8 +1239,17 @@
             }
         }
 
+        body.no-scroll {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
         #formPage {
             background-color: white !important;
+            overflow: hidden;
+             max-height: 100vh;
         
         }
 
@@ -1738,28 +1747,6 @@
             }
         }
 
-        document.addEventListener("DOMContentLoaded", function () {
-    const formPage = document.getElementById("formPage");
-
-    function disableScroll() {
-        document.body.style.overflow = "hidden";
-    }
-
-    function enableScroll() {
-        document.body.style.overflow = "auto";
-    }
-
-    // Khi vào trang nhập mật khẩu
-    document.getElementById("openFormBtn").addEventListener("click", function () {
-        disableScroll();
-    });
-
-    // Khi quay lại trang chủ
-    document.getElementById("backToHomeBtn").addEventListener("click", function () {
-        enableScroll();
-    });
-});
-
         
         // Create explosion particles
         function createExplosionParticles() {
@@ -1833,33 +1820,37 @@
         }
         
         // Navigate between pages
-        function navigateTo(fromPage, toPage, direction = 'right') {
-            const from = document.getElementById(fromPage);
-            const to = document.getElementById(toPage);
-            
-            // Set initial positions
-            from.classList.remove('page-active');
-            to.classList.remove('page-inactive-left', 'page-inactive-right');
-            
-            if (direction === 'right') {
-                from.classList.add('page-inactive-left');
-                to.classList.add('page-active');
-            } else {
-                from.classList.add('page-inactive-right');
-                to.classList.add('page-active');
-            }
-            
-            // Update back button visibility
-            const headerBackBtn = document.getElementById('headerBackBtn');
-            if (toPage === 'homePage') {
-                headerBackBtn.style.visibility = 'hidden';
-            } else {
-                headerBackBtn.style.visibility = 'visible';
-            }
-            
-            // Scroll to top of new page
-            window.scrollTo(0, 0);
-        }
+       function navigateTo(fromPage, toPage, direction = 'right') {
+    const from = document.getElementById(fromPage);
+    const to = document.getElementById(toPage);
+    
+    // Set initial positions
+    from.classList.remove('page-active');
+    to.classList.remove('page-inactive-left', 'page-inactive-right');
+    
+    if (direction === 'right') {
+        from.classList.add('page-inactive-left');
+        to.classList.add('page-active');
+    } else {
+        from.classList.add('page-inactive-right');
+        to.classList.add('page-active');
+    }
+    
+    // Update back button visibility
+    const headerBackBtn = document.getElementById('headerBackBtn');
+    if (toPage === 'homePage') {
+        headerBackBtn.style.visibility = 'hidden';
+        // Enable scrolling when returning to home page
+        document.body.classList.remove('no-scroll');
+    } else {
+        headerBackBtn.style.visibility = 'visible';
+        // Disable scrolling when on form page
+        document.body.classList.add('no-scroll');
+    }
+    
+    // Scroll to top of new page
+    window.scrollTo(0, 0);
+}
         
         // Handle scroll animations
         function handleScrollAnimations() {
