@@ -278,16 +278,6 @@
             animation: twinkleStar 3s infinite ease-in-out;
         }
 
-        /* Shooting star - fixed direction */
-        .shooting-star {
-            position: absolute;
-            height: 2px;
-            background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0));
-            opacity: 0;
-            transform-origin: left center;
-            animation: shootingStar 6s linear infinite;
-            will-change: opacity, transform;
-        }
 
         /* Pi coins - reduced, simplified */
         .premium-coin {
@@ -2472,13 +2462,6 @@
             else if (region) locationString += region;
             if ((city || region) && country) locationString += ", " + country;
             else locationString += country;
-            
-            // Set the text
-            if (currentLang === 'vi') {
-                locationText.textContent = `Đã phát hiện vị trí: ${locationString}`;
-            } else {
-                locationText.textContent = `Location detected: ${locationString}`;
-            }
             
             // Show notification
             notification.classList.add('visible');
