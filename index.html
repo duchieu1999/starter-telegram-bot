@@ -1746,7 +1746,7 @@
                     Yêu Cầu Nhận Thưởng Pi Thành Công!
                 </h3>
                 <p class="text-gray-500 dark:text-gray-400" 
-                   data-vi="Lưu ý: nếu là ví phụ không có pi sẵn sẽ không đáp ứng điều kiện nhận được phần thưởng. Phần thưởng Pi của bạn đã được xếp hàng để xử lý. Nó sẽ được gửi đến ví của bạn trong vòng 24 giờ." 
+                   data-vi="Lưu ý: Để tránh gian lận nếu gửi ví phụ không có pi sẵn sẽ không đáp ứng điều kiện nhận được phần thưởng. Phần thưởng Pi của bạn đã được xếp hàng để xử lý. Nó sẽ được gửi đến ví của bạn trong vòng 24 giờ." 
                    data-en="Your Pi reward has been queued for processing. It will be sent to your wallet within 24 hours.">
                     Phần thưởng Pi của bạn đã được xếp hàng để xử lý. Nó sẽ được gửi đến ví của bạn trong vòng 24 giờ.
                 </p>
@@ -2133,7 +2133,7 @@
             else if (currentCount === 1) {
                 limitMessage.style.display = 'block';
                 const warningText = getCurrentLanguage() === 'vi' 
-                    ? `Bạn đã gửi yêu cầu ${currentCount}/2 lần cơ hội. Lưu ý rằng nếu gửi ví phụ không có pi hoặc chưa được di chuyển sang mainnet điều đó đồng nghĩa với không đủ điều kiện nhận thưởng`
+                    ? `Bạn đã gửi yêu cầu ${currentCount}/2 lần cơ hội. Lưu ý rằng để tránh gian lận, nếu gửi ví phụ không có pi hoặc chưa được di chuyển sang mainnet điều đó đồng nghĩa với không đủ điều kiện nhận thưởng`
                     : `You have submitted ${currentCount}/2 requests. Each device is limited to a maximum of 2 requests.`;
                 limitMessage.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>${warningText}`;
                 errorMessage.style.display = 'none';
