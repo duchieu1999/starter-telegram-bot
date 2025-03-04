@@ -1741,12 +1741,12 @@
                    <i class="fas fa-check"></i>
                 </div>
                 <h3 class="text-3xl font-bold mb-3" 
-                    data-vi="Nhận Thưởng Pi Thành Công!" 
+                    data-vi="Yêu Cầu Nhận Thưởng Pi Thành Công!" 
                     data-en="Pi Reward Request Successful!">
                     Nhận Thưởng Pi Thành Công!
                 </h3>
                 <p class="text-gray-500 dark:text-gray-400" 
-                   data-vi="Phần thưởng Pi của bạn đã được xếp hàng để xử lý. Nó sẽ được gửi đến ví của bạn trong vòng 24 giờ." 
+                   data-vi="Lưu ý nếu ví đã yêu cầu gửi không có pi sẵn sẽ không đáp ứng điều kiện nhận được phần thưởng. Phần thưởng Pi của bạn đã được xếp hàng để xử lý. Nó sẽ được gửi đến ví của bạn trong vòng 24 giờ. Nếu quá 24h chưa nhận được điều đó có nghĩa ví bạn không đủ điều kiện hoặc chúng tôi đã hết Pi" 
                    data-en="Your Pi reward has been queued for processing. It will be sent to your wallet within 24 hours.">
                     Phần thưởng Pi của bạn đã được xếp hàng để xử lý. Nó sẽ được gửi đến ví của bạn trong vòng 24 giờ.
                 </p>
@@ -1759,7 +1759,7 @@
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="font-bold" data-vi="Số Lượng Thưởng:" data-en="Reward Amount:">Số Lượng Thưởng:</span>
-                    <span class="text-black font-bold">314 Pi</span>
+                    <span class="text-black font-bold">+314 Pi</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="font-bold" data-vi="Thời Gian Dự Kiến:" data-en="Estimated Time:">Thời Gian Dự Kiến:</span>
@@ -2133,7 +2133,7 @@
             else if (currentCount === 1) {
                 limitMessage.style.display = 'block';
                 const warningText = getCurrentLanguage() === 'vi' 
-                    ? `Bạn đã gửi yêu cầu ${currentCount}/2 lần. Mỗi thiết bị chỉ được phép gửi tối đa 2 yêu cầu.`
+                    ? `Bạn đã gửi yêu cầu ${currentCount}/2 lần. Lưu ý rằng nếu bạn gửi ví phụ không có pi hoặc chưa được di chuyển sang mainnet điều đó đồng nghĩa với không đủ điều kiện nhận thưởng`
                     : `You have submitted ${currentCount}/2 requests. Each device is limited to a maximum of 2 requests.`;
                 limitMessage.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>${warningText}`;
                 errorMessage.style.display = 'none';
